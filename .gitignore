@@ -1,0 +1,5 @@
+node_modules/
+dist/
+.esbuild/
+test-results/
+*.log

@@ -1,0 +1,820 @@
+{
+  "generatedAt": "2026-06-26T07:37:53.952Z",
+  "target": "http://localhost:3000",
+  "appName": "UXRay Demo App",
+  "durationMs": 18801,
+  "auditScore": 0,
+  "personaScore": 37,
+  "totalFindings": 49,
+  "manualGaps": 21,
+  "findings": [
+    {
+      "id": "axe-1",
+      "route": "/campaigns",
+      "source": "axe",
+      "severity": "critical",
+      "wcag": [
+        "WCAG 2a",
+        "WCAG 4.12"
+      ],
+      "title": "Ensure buttons have discernible text",
+      "description": "[button-name] Buttons must have discernible text — 18 node(s). https://dequeuniversity.com/rules/axe/4.12/button-name?application=playwright"
+    },
+    {
+      "id": "axe-2",
+      "route": "/campaigns",
+      "source": "axe",
+      "severity": "critical",
+      "wcag": [
+        "WCAG 2aa",
+        "WCAG 1.43"
+      ],
+      "title": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+      "description": "[color-contrast] Elements must meet minimum color contrast ratio thresholds — 3 node(s). https://dequeuniversity.com/rules/axe/4.12/color-contrast?application=playwright"
+    },
+    {
+      "id": "axe-3",
+      "route": "/campaigns",
+      "source": "axe",
+      "severity": "critical",
+      "wcag": [
+        "WCAG 2a",
+        "WCAG 1.11"
+      ],
+      "title": "Ensure <img> elements have alternative text or a role of none or presentation",
+      "description": "[image-alt] Images must have alternative text — 1 node(s). https://dequeuniversity.com/rules/axe/4.12/image-alt?application=playwright"
+    },
+    {
+      "id": "axe-4",
+      "route": "/campaigns/CMP-1001",
+      "source": "axe",
+      "severity": "critical",
+      "wcag": [
+        "WCAG 2aa",
+        "WCAG 1.43"
+      ],
+      "title": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+      "description": "[color-contrast] Elements must meet minimum color contrast ratio thresholds — 1 node(s). https://dequeuniversity.com/rules/axe/4.12/color-contrast?application=playwright"
+    },
+    {
+      "id": "axe-5",
+      "route": "/campaigns/CMP-1001",
+      "source": "axe",
+      "severity": "major",
+      "wcag": [
+        "WCAG (unknown)"
+      ],
+      "title": "Ensure the order of headings is semantically correct",
+      "description": "[heading-order] Heading levels should only increase by one — 1 node(s). https://dequeuniversity.com/rules/axe/4.12/heading-order?application=playwright"
+    },
+    {
+      "id": "axe-6",
+      "route": "/campaigns/CMP-1001",
+      "source": "axe",
+      "severity": "critical",
+      "wcag": [
+        "WCAG 2a",
+        "WCAG 1.11"
+      ],
+      "title": "Ensure <img> elements have alternative text or a role of none or presentation",
+      "description": "[image-alt] Images must have alternative text — 1 node(s). https://dequeuniversity.com/rules/axe/4.12/image-alt?application=playwright"
+    },
+    {
+      "id": "axe-7",
+      "route": "/campaigns/new",
+      "source": "axe",
+      "severity": "critical",
+      "wcag": [
+        "WCAG 2a",
+        "WCAG 1.11"
+      ],
+      "title": "Ensure <img> elements have alternative text or a role of none or presentation",
+      "description": "[image-alt] Images must have alternative text — 1 node(s). https://dequeuniversity.com/rules/axe/4.12/image-alt?application=playwright"
+    },
+    {
+      "id": "kb-skip-1",
+      "route": "/campaigns",
+      "source": "keyboard",
+      "severity": "major",
+      "wcag": [
+        "WCAG 2.4.1"
+      ],
+      "title": "No skip navigation link",
+      "description": "First focusable element is <a> \"Campaigns\" — not a skip link. Keyboard users must tab through nav on every page.",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/kb-skip-nav--campaigns.png"
+    },
+    {
+      "id": "kb-trap-2",
+      "route": "/campaigns",
+      "source": "keyboard",
+      "severity": "critical",
+      "wcag": [
+        "WCAG 2.1.2"
+      ],
+      "title": "Keyboard trap detected",
+      "description": "Focus cycled to <a> \"Winter Welcome Back\" 3+ times — keyboard users cannot exit this element.",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/kb-trap--campaigns.png"
+    },
+    {
+      "id": "kb-skip-3",
+      "route": "/campaigns/CMP-1001",
+      "source": "keyboard",
+      "severity": "major",
+      "wcag": [
+        "WCAG 2.4.1"
+      ],
+      "title": "No skip navigation link",
+      "description": "First focusable element is <a> \"Campaigns\" — not a skip link. Keyboard users must tab through nav on every page.",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/kb-skip-nav--campaigns-CMP-1001.png"
+    },
+    {
+      "id": "kb-trap-4",
+      "route": "/campaigns/CMP-1001",
+      "source": "keyboard",
+      "severity": "critical",
+      "wcag": [
+        "WCAG 2.1.2"
+      ],
+      "title": "Keyboard trap detected",
+      "description": "Focus cycled to <button> \"Activity\" 3+ times — keyboard users cannot exit this element.",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/kb-trap--campaigns-CMP-1001.png"
+    },
+    {
+      "id": "kb-modal-5",
+      "route": "/campaigns/CMP-1001",
+      "source": "keyboard",
+      "severity": "critical",
+      "wcag": [
+        "WCAG 2.1.2"
+      ],
+      "title": "Modal not dismissible with Escape",
+      "description": "Dialog triggered by \"Cancel campaign\" does not close on Escape — keyboard trap.",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/kb-modal-escape--campaigns-CMP-1001.png"
+    },
+    {
+      "id": "kb-skip-6",
+      "route": "/campaigns/new",
+      "source": "keyboard",
+      "severity": "major",
+      "wcag": [
+        "WCAG 2.4.1"
+      ],
+      "title": "No skip navigation link",
+      "description": "First focusable element is <a> \"Campaigns\" — not a skip link. Keyboard users must tab through nav on every page.",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/kb-skip-nav--campaigns-new.png"
+    },
+    {
+      "id": "kb-trap-7",
+      "route": "/campaigns/new",
+      "source": "keyboard",
+      "severity": "critical",
+      "wcag": [
+        "WCAG 2.1.2"
+      ],
+      "title": "Keyboard trap detected",
+      "description": "Focus cycled to <input> \"\" 3+ times — keyboard users cannot exit this element.",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/kb-trap--campaigns-new.png"
+    },
+    {
+      "id": "resp-overflow-1",
+      "route": "/campaigns",
+      "source": "responsive",
+      "severity": "major",
+      "wcag": [
+        "WCAG 1.4.10"
+      ],
+      "title": "Content overflow at 375px",
+      "description": "<body> overflows by 529px. Page has horizontal scroll",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-mobile--campaigns.png"
+    },
+    {
+      "id": "resp-overflow-2",
+      "route": "/campaigns",
+      "source": "responsive",
+      "severity": "major",
+      "wcag": [
+        "WCAG 1.4.10"
+      ],
+      "title": "Content overflow at 375px",
+      "description": "<table.campaigns-list__table> overflows by 496px. Table overflows with no scroll container",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-mobile--campaigns.png"
+    },
+    {
+      "id": "resp-touch-3",
+      "route": "/campaigns",
+      "source": "responsive",
+      "severity": "major",
+      "wcag": [
+        "WCAG 2.5.5"
+      ],
+      "title": "Touch targets below 44px at 375px",
+      "description": "20 element(s) too small. e.g. <button .app-layout__theme-toggle> \"Switch to dark mode\" 35×40px (need 44px)",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-mobile--campaigns.png"
+    },
+    {
+      "id": "resp-orient-4",
+      "route": "/campaigns",
+      "source": "responsive",
+      "severity": "major",
+      "wcag": [
+        "WCAG 1.3.4"
+      ],
+      "title": "Content overflows in landscape orientation",
+      "description": "Page overflows horizontally when viewport rotated to landscape (812×320)."
+    },
+    {
+      "id": "resp-overflow-5",
+      "route": "/campaigns/CMP-1001",
+      "source": "responsive",
+      "severity": "major",
+      "wcag": [
+        "WCAG 1.4.10"
+      ],
+      "title": "Content overflow at 375px",
+      "description": "<body> overflows by 91px. Page has horizontal scroll",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-mobile--campaigns-CMP-1001.png"
+    },
+    {
+      "id": "resp-touch-6",
+      "route": "/campaigns/CMP-1001",
+      "source": "responsive",
+      "severity": "major",
+      "wcag": [
+        "WCAG 2.5.5"
+      ],
+      "title": "Touch targets below 44px at 375px",
+      "description": "5 element(s) too small. e.g. <button .app-layout__theme-toggle> \"Switch to dark mode\" 35×40px (need 44px)",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-mobile--campaigns-CMP-1001.png"
+    },
+    {
+      "id": "resp-overflow-7",
+      "route": "/campaigns/new",
+      "source": "responsive",
+      "severity": "major",
+      "wcag": [
+        "WCAG 1.4.10"
+      ],
+      "title": "Content overflow at 375px",
+      "description": "<body> overflows by 91px. Page has horizontal scroll",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-mobile--campaigns-new.png"
+    },
+    {
+      "id": "resp-touch-8",
+      "route": "/campaigns/new",
+      "source": "responsive",
+      "severity": "major",
+      "wcag": [
+        "WCAG 2.5.5"
+      ],
+      "title": "Touch targets below 44px at 375px",
+      "description": "1 element(s) too small. e.g. <button .app-layout__theme-toggle> \"Switch to dark mode\" 35×40px (need 44px)",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-mobile--campaigns-new.png"
+    },
+    {
+      "id": "resp-overflow-9",
+      "route": "/campaigns",
+      "source": "responsive",
+      "severity": "major",
+      "wcag": [
+        "WCAG 1.4.10"
+      ],
+      "title": "Content overflow at 768px",
+      "description": "<body> overflows by 136px. Page has horizontal scroll",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-tablet--campaigns.png"
+    },
+    {
+      "id": "resp-overflow-10",
+      "route": "/campaigns",
+      "source": "responsive",
+      "severity": "major",
+      "wcag": [
+        "WCAG 1.4.10"
+      ],
+      "title": "Content overflow at 768px",
+      "description": "<table.campaigns-list__table> overflows by 103px. Table overflows with no scroll container",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-tablet--campaigns.png"
+    },
+    {
+      "id": "resp-touch-11",
+      "route": "/campaigns",
+      "source": "responsive",
+      "severity": "major",
+      "wcag": [
+        "WCAG 2.5.5"
+      ],
+      "title": "Touch targets below 44px at 768px",
+      "description": "20 element(s) too small. e.g. <a .app-layout__nav-link> \"nav-campaigns\" 106×37px (need 44px)",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-tablet--campaigns.png"
+    },
+    {
+      "id": "resp-touch-12",
+      "route": "/campaigns/CMP-1001",
+      "source": "responsive",
+      "severity": "major",
+      "wcag": [
+        "WCAG 2.5.5"
+      ],
+      "title": "Touch targets below 44px at 768px",
+      "description": "7 element(s) too small. e.g. <a .app-layout__nav-link> \"nav-campaigns\" 106×37px (need 44px)",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-tablet--campaigns-CMP-1001.png"
+    },
+    {
+      "id": "resp-touch-13",
+      "route": "/campaigns/new",
+      "source": "responsive",
+      "severity": "major",
+      "wcag": [
+        "WCAG 2.5.5"
+      ],
+      "title": "Touch targets below 44px at 768px",
+      "description": "3 element(s) too small. e.g. <a .app-layout__nav-link> \"nav-campaigns\" 106×37px (need 44px)",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-tablet--campaigns-new.png"
+    },
+    {
+      "id": "resp-dark-14",
+      "route": "/campaigns",
+      "source": "responsive",
+      "severity": "major",
+      "wcag": [
+        "WCAG 1.4.3"
+      ],
+      "title": "Dark mode contrast failures",
+      "description": "3 element(s) fail contrast in dark mode. e.g. span \"scheduled\" ratio=2.97 (need 4.5)",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-dark-contrast--campaigns.png"
+    },
+    {
+      "id": "ext-ntc-1",
+      "route": "/campaigns",
+      "source": "wcagExtended",
+      "severity": "major",
+      "wcag": [
+        "WCAG 1.4.11"
+      ],
+      "title": "Non-text contrast failure",
+      "description": "<button[data-testid=theme-toggle]> border vs page-background: ratio 1.21 (need 3). Border: rgb(224, 224, 224)",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/ext-non-text-contrast--campaigns.png"
+    },
+    {
+      "id": "ext-label-in-name-1",
+      "route": "/campaigns",
+      "source": "wcagExtended",
+      "severity": "major",
+      "wcag": [
+        "WCAG 2.5.3"
+      ],
+      "title": "Accessible name does not contain visible label",
+      "description": "<button data-testid=\"theme-toggle\"> is visually labelled \"🌙\" but aria-label is \"Switch to dark mode\". Voice-control users saying \"🌙\" cannot activate this control. Fix: make aria-label start with or contain \"🌙\"."
+    },
+    {
+      "id": "ext-status-1",
+      "route": "/campaigns",
+      "source": "wcagExtended",
+      "severity": "major",
+      "wcag": [
+        "WCAG 4.1.3"
+      ],
+      "title": "No aria-live region for status messages",
+      "description": "Page has action buttons (Create campaign) but no role=\"status\" or aria-live region. Success/error outcomes won't be announced to screen reader users."
+    },
+    {
+      "id": "ext-manual-audio-only",
+      "route": "/campaigns",
+      "source": "manual-required",
+      "severity": "manual",
+      "wcag": [
+        "WCAG 1.2.1"
+      ],
+      "title": "[MANUAL] Audio-only and video-only content",
+      "description": "Check that audio-only content has a transcript and video-only content has a text alternative."
+    },
+    {
+      "id": "ext-manual-captions",
+      "route": "/campaigns",
+      "source": "manual-required",
+      "severity": "manual",
+      "wcag": [
+        "WCAG 1.2.2"
+      ],
+      "title": "[MANUAL] Captions (pre-recorded)",
+      "description": "Check that all pre-recorded video includes accurate closed captions."
+    },
+    {
+      "id": "ext-manual-audio-desc",
+      "route": "/campaigns",
+      "source": "manual-required",
+      "severity": "manual",
+      "wcag": [
+        "WCAG 1.2.5"
+      ],
+      "title": "[MANUAL] Audio description (pre-recorded)",
+      "description": "Check that pre-recorded video has an audio description track describing visual-only information."
+    },
+    {
+      "id": "ext-manual-seizures",
+      "route": "/campaigns",
+      "source": "manual-required",
+      "severity": "manual",
+      "wcag": [
+        "WCAG 2.3.1"
+      ],
+      "title": "[MANUAL] Three flashes or below threshold",
+      "description": "Check that no content flashes more than 3 times per second. Requires visual inspection — cannot be automated."
+    },
+    {
+      "id": "ext-manual-timing",
+      "route": "/campaigns",
+      "source": "manual-required",
+      "severity": "manual",
+      "wcag": [
+        "WCAG 2.2.1"
+      ],
+      "title": "[MANUAL] Timing adjustable",
+      "description": "If any timed session or content exists, verify users can turn off, adjust, or extend the time limit."
+    },
+    {
+      "id": "ext-manual-consistent-id",
+      "route": "/campaigns",
+      "source": "manual-required",
+      "severity": "manual",
+      "wcag": [
+        "WCAG 3.2.4"
+      ],
+      "title": "[MANUAL] Consistent identification",
+      "description": "Verify components with the same function are identified consistently across pages (e.g. search icon always labelled 'Search')."
+    },
+    {
+      "id": "ext-manual-error-prevention",
+      "route": "/campaigns",
+      "source": "manual-required",
+      "severity": "manual",
+      "wcag": [
+        "WCAG 3.3.4"
+      ],
+      "title": "[MANUAL] Error prevention (legal/financial)",
+      "description": "For forms involving legal or financial data, verify submissions are reversible, checkable, or confirmed before final commit."
+    },
+    {
+      "id": "ext-ntc-1",
+      "route": "/campaigns/CMP-1001",
+      "source": "wcagExtended",
+      "severity": "major",
+      "wcag": [
+        "WCAG 1.4.11"
+      ],
+      "title": "Non-text contrast failure",
+      "description": "<button[data-testid=theme-toggle]> border vs page-background: ratio 1.21 (need 3). Border: rgb(224, 224, 224)",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/ext-non-text-contrast--campaigns-CMP-1001.png"
+    },
+    {
+      "id": "ext-link-purpose-1",
+      "route": "/campaigns/CMP-1001",
+      "source": "wcagExtended",
+      "severity": "minor",
+      "wcag": [
+        "WCAG 2.4.4"
+      ],
+      "title": "Link text is not descriptive",
+      "description": "Link \"click here\" (href: https://example.com/campaign-docs) is vague out of context. Screen reader users navigating by links list hear only \"click here\". Replace with descriptive text or add aria-label."
+    },
+    {
+      "id": "ext-label-in-name-1",
+      "route": "/campaigns/CMP-1001",
+      "source": "wcagExtended",
+      "severity": "major",
+      "wcag": [
+        "WCAG 2.5.3"
+      ],
+      "title": "Accessible name does not contain visible label",
+      "description": "<button data-testid=\"theme-toggle\"> is visually labelled \"🌙\" but aria-label is \"Switch to dark mode\". Voice-control users saying \"🌙\" cannot activate this control. Fix: make aria-label start with or contain \"🌙\"."
+    },
+    {
+      "id": "ext-manual-audio-only",
+      "route": "/campaigns/CMP-1001",
+      "source": "manual-required",
+      "severity": "manual",
+      "wcag": [
+        "WCAG 1.2.1"
+      ],
+      "title": "[MANUAL] Audio-only and video-only content",
+      "description": "Check that audio-only content has a transcript and video-only content has a text alternative."
+    },
+    {
+      "id": "ext-manual-captions",
+      "route": "/campaigns/CMP-1001",
+      "source": "manual-required",
+      "severity": "manual",
+      "wcag": [
+        "WCAG 1.2.2"
+      ],
+      "title": "[MANUAL] Captions (pre-recorded)",
+      "description": "Check that all pre-recorded video includes accurate closed captions."
+    },
+    {
+      "id": "ext-manual-audio-desc",
+      "route": "/campaigns/CMP-1001",
+      "source": "manual-required",
+      "severity": "manual",
+      "wcag": [
+        "WCAG 1.2.5"
+      ],
+      "title": "[MANUAL] Audio description (pre-recorded)",
+      "description": "Check that pre-recorded video has an audio description track describing visual-only information."
+    },
+    {
+      "id": "ext-manual-seizures",
+      "route": "/campaigns/CMP-1001",
+      "source": "manual-required",
+      "severity": "manual",
+      "wcag": [
+        "WCAG 2.3.1"
+      ],
+      "title": "[MANUAL] Three flashes or below threshold",
+      "description": "Check that no content flashes more than 3 times per second. Requires visual inspection — cannot be automated."
+    },
+    {
+      "id": "ext-manual-timing",
+      "route": "/campaigns/CMP-1001",
+      "source": "manual-required",
+      "severity": "manual",
+      "wcag": [
+        "WCAG 2.2.1"
+      ],
+      "title": "[MANUAL] Timing adjustable",
+      "description": "If any timed session or content exists, verify users can turn off, adjust, or extend the time limit."
+    },
+    {
+      "id": "ext-manual-consistent-id",
+      "route": "/campaigns/CMP-1001",
+      "source": "manual-required",
+      "severity": "manual",
+      "wcag": [
+        "WCAG 3.2.4"
+      ],
+      "title": "[MANUAL] Consistent identification",
+      "description": "Verify components with the same function are identified consistently across pages (e.g. search icon always labelled 'Search')."
+    },
+    {
+      "id": "ext-manual-error-prevention",
+      "route": "/campaigns/CMP-1001",
+      "source": "manual-required",
+      "severity": "manual",
+      "wcag": [
+        "WCAG 3.3.4"
+      ],
+      "title": "[MANUAL] Error prevention (legal/financial)",
+      "description": "For forms involving legal or financial data, verify submissions are reversible, checkable, or confirmed before final commit."
+    },
+    {
+      "id": "ext-ntc-1",
+      "route": "/campaigns/new",
+      "source": "wcagExtended",
+      "severity": "major",
+      "wcag": [
+        "WCAG 1.4.11"
+      ],
+      "title": "Non-text contrast failure",
+      "description": "<button[data-testid=theme-toggle]> border vs page-background: ratio 1.21 (need 3). Border: rgb(224, 224, 224)",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/ext-non-text-contrast--campaigns-new.png"
+    },
+    {
+      "id": "ext-ntc-2",
+      "route": "/campaigns/new",
+      "source": "wcagExtended",
+      "severity": "major",
+      "wcag": [
+        "WCAG 1.4.11"
+      ],
+      "title": "Non-text contrast failure",
+      "description": "<input#«r0»[data-testid=campaign-form-name]> border vs page-background: ratio 1.21 (need 3). Border: rgb(224, 224, 224)",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/ext-non-text-contrast--campaigns-new.png"
+    },
+    {
+      "id": "ext-ntc-3",
+      "route": "/campaigns/new",
+      "source": "wcagExtended",
+      "severity": "major",
+      "wcag": [
+        "WCAG 1.4.11"
+      ],
+      "title": "Non-text contrast failure",
+      "description": "<input#«r1»[data-testid=campaign-form-description]> border vs page-background: ratio 1.21 (need 3). Border: rgb(224, 224, 224)",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/ext-non-text-contrast--campaigns-new.png"
+    },
+    {
+      "id": "ext-ntc-4",
+      "route": "/campaigns/new",
+      "source": "wcagExtended",
+      "severity": "major",
+      "wcag": [
+        "WCAG 1.4.11"
+      ],
+      "title": "Non-text contrast failure",
+      "description": "<input#«r2»[data-testid=campaign-form-origin]> border vs page-background: ratio 1.21 (need 3). Border: rgb(224, 224, 224)",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/ext-non-text-contrast--campaigns-new.png"
+    },
+    {
+      "id": "ext-ntc-5",
+      "route": "/campaigns/new",
+      "source": "wcagExtended",
+      "severity": "major",
+      "wcag": [
+        "WCAG 1.4.11"
+      ],
+      "title": "Non-text contrast failure",
+      "description": "<input#«r3»[data-testid=campaign-form-destination]> border vs page-background: ratio 1.21 (need 3). Border: rgb(224, 224, 224)",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/ext-non-text-contrast--campaigns-new.png"
+    },
+    {
+      "id": "ext-ntc-6",
+      "route": "/campaigns/new",
+      "source": "wcagExtended",
+      "severity": "major",
+      "wcag": [
+        "WCAG 1.4.11"
+      ],
+      "title": "Non-text contrast failure",
+      "description": "<select#campaign-form-tier[data-testid=campaign-form-tier]> border vs page-background: ratio 1.21 (need 3). Border: rgb(224, 224, 224)",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/ext-non-text-contrast--campaigns-new.png"
+    },
+    {
+      "id": "ext-ntc-7",
+      "route": "/campaigns/new",
+      "source": "wcagExtended",
+      "severity": "major",
+      "wcag": [
+        "WCAG 1.4.11"
+      ],
+      "title": "Non-text contrast failure",
+      "description": "<input#«r4»[data-testid=campaign-form-start]> border vs page-background: ratio 1.21 (need 3). Border: rgb(224, 224, 224)",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/ext-non-text-contrast--campaigns-new.png"
+    },
+    {
+      "id": "ext-ntc-8",
+      "route": "/campaigns/new",
+      "source": "wcagExtended",
+      "severity": "major",
+      "wcag": [
+        "WCAG 1.4.11"
+      ],
+      "title": "Non-text contrast failure",
+      "description": "<input#«r5»[data-testid=campaign-form-end]> border vs page-background: ratio 1.21 (need 3). Border: rgb(224, 224, 224)",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/ext-non-text-contrast--campaigns-new.png"
+    },
+    {
+      "id": "ext-ntc-9",
+      "route": "/campaigns/new",
+      "source": "wcagExtended",
+      "severity": "major",
+      "wcag": [
+        "WCAG 1.4.11"
+      ],
+      "title": "Non-text contrast failure",
+      "description": "<input#«r6»[data-testid=campaign-form-miles]> border vs page-background: ratio 1.21 (need 3). Border: rgb(224, 224, 224)",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/ext-non-text-contrast--campaigns-new.png"
+    },
+    {
+      "id": "ext-ntc-10",
+      "route": "/campaigns/new",
+      "source": "wcagExtended",
+      "severity": "major",
+      "wcag": [
+        "WCAG 1.4.11"
+      ],
+      "title": "Non-text contrast failure",
+      "description": "<textarea[data-testid=campaign-form-notes]> border vs page-background: ratio 1.21 (need 3). Border: rgb(224, 224, 224)",
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/ext-non-text-contrast--campaigns-new.png"
+    },
+    {
+      "id": "ext-label-in-name-1",
+      "route": "/campaigns/new",
+      "source": "wcagExtended",
+      "severity": "major",
+      "wcag": [
+        "WCAG 2.5.3"
+      ],
+      "title": "Accessible name does not contain visible label",
+      "description": "<button data-testid=\"theme-toggle\"> is visually labelled \"🌙\" but aria-label is \"Switch to dark mode\". Voice-control users saying \"🌙\" cannot activate this control. Fix: make aria-label start with or contain \"🌙\"."
+    },
+    {
+      "id": "ext-labels-instr-1",
+      "route": "/campaigns/new",
+      "source": "wcagExtended",
+      "severity": "minor",
+      "wcag": [
+        "WCAG 3.3.2"
+      ],
+      "title": "Format field missing input instructions",
+      "description": "<input type=\"date\"> \"«r4»\" requires a specific format but has no hint text or aria-describedby. Add visible hint text (e.g. \"DD/MM/YYYY\") linked via aria-describedby."
+    },
+    {
+      "id": "ext-labels-instr-2",
+      "route": "/campaigns/new",
+      "source": "wcagExtended",
+      "severity": "minor",
+      "wcag": [
+        "WCAG 3.3.2"
+      ],
+      "title": "Format field missing input instructions",
+      "description": "<input type=\"date\"> \"«r5»\" requires a specific format but has no hint text or aria-describedby. Add visible hint text (e.g. \"DD/MM/YYYY\") linked via aria-describedby."
+    },
+    {
+      "id": "ext-labels-instr-3",
+      "route": "/campaigns/new",
+      "source": "wcagExtended",
+      "severity": "minor",
+      "wcag": [
+        "WCAG 3.3.2"
+      ],
+      "title": "Format field missing input instructions",
+      "description": "<input type=\"number\"> \"«r6»\" requires a specific format but has no hint text or aria-describedby. Add visible hint text (e.g. \"DD/MM/YYYY\") linked via aria-describedby."
+    },
+    {
+      "id": "ext-status-1",
+      "route": "/campaigns/new",
+      "source": "wcagExtended",
+      "severity": "major",
+      "wcag": [
+        "WCAG 4.1.3"
+      ],
+      "title": "No aria-live region for status messages",
+      "description": "Page has action buttons (Create campaign) but no role=\"status\" or aria-live region. Success/error outcomes won't be announced to screen reader users."
+    },
+    {
+      "id": "ext-manual-audio-only",
+      "route": "/campaigns/new",
+      "source": "manual-required",
+      "severity": "manual",
+      "wcag": [
+        "WCAG 1.2.1"
+      ],
+      "title": "[MANUAL] Audio-only and video-only content",
+      "description": "Check that audio-only content has a transcript and video-only content has a text alternative."
+    },
+    {
+      "id": "ext-manual-captions",
+      "route": "/campaigns/new",
+      "source": "manual-required",
+      "severity": "manual",
+      "wcag": [
+        "WCAG 1.2.2"
+      ],
+      "title": "[MANUAL] Captions (pre-recorded)",
+      "description": "Check that all pre-recorded video includes accurate closed captions."
+    },
+    {
+      "id": "ext-manual-audio-desc",
+      "route": "/campaigns/new",
+      "source": "manual-required",
+      "severity": "manual",
+      "wcag": [
+        "WCAG 1.2.5"
+      ],
+      "title": "[MANUAL] Audio description (pre-recorded)",
+      "description": "Check that pre-recorded video has an audio description track describing visual-only information."
+    },
+    {
+      "id": "ext-manual-seizures",
+      "route": "/campaigns/new",
+      "source": "manual-required",
+      "severity": "manual",
+      "wcag": [
+        "WCAG 2.3.1"
+      ],
+      "title": "[MANUAL] Three flashes or below threshold",
+      "description": "Check that no content flashes more than 3 times per second. Requires visual inspection — cannot be automated."
+    },
+    {
+      "id": "ext-manual-timing",
+      "route": "/campaigns/new",
+      "source": "manual-required",
+      "severity": "manual",
+      "wcag": [
+        "WCAG 2.2.1"
+      ],
+      "title": "[MANUAL] Timing adjustable",
+      "description": "If any timed session or content exists, verify users can turn off, adjust, or extend the time limit."
+    },
+    {
+      "id": "ext-manual-consistent-id",
+      "route": "/campaigns/new",
+      "source": "manual-required",
+      "severity": "manual",
+      "wcag": [
+        "WCAG 3.2.4"
+      ],
+      "title": "[MANUAL] Consistent identification",
+      "description": "Verify components with the same function are identified consistently across pages (e.g. search icon always labelled 'Search')."
+    },
+    {
+      "id": "ext-manual-error-prevention",
+      "route": "/campaigns/new",
+      "source": "manual-required",
+      "severity": "manual",
+      "wcag": [
+        "WCAG 3.3.4"
+      ],
+      "title": "[MANUAL] Error prevention (legal/financial)",
+      "description": "For forms involving legal or financial data, verify submissions are reversible, checkable, or confirmed before final commit."
+    }
+  ]
+}

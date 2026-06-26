@@ -1,0 +1,26 @@
+{
+  "name": "@lps/uxray",
+  "version": "1.0.0",
+  "description": "Automated WCAG 2.1 AA accessibility and responsiveness auditor for React apps",
+  "type": "module",
+  "bin": {
+    "uxray": "./bin/uxray.mjs"
+  },
+  "exports": {
+    ".": "./src/index.mjs",
+    "./config": "./src/config.mjs"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.0.0",
+    "@axe-core/playwright": "^4.9.0",
+    "playwright": "^1.44.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "@types/node": "^26.0.1",
+    "typescript": "^6.0.3"
+  }
+}

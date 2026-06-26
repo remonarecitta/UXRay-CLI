@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.uxray/
+test-results/
+package-lock.json
+*.log
