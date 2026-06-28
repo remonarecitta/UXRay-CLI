@@ -8,137 +8,252 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#F1EFE8;color:#3d3d3a;line-height:1.5}
 .container{max-width:960px;margin:0 auto;padding:32px 20px}
-h1{font-size:22px;font-weight:500;margin:0 0 4px}
-h2{font-size:16px;font-weight:500;margin:28px 0 10px}
-.meta{font-size:13px;color:#888780;margin-bottom:24px}
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:24px}
-.stat{background:#fff;border:0.5px solid #D3D1C7;border-radius:8px;padding:12px 14px;text-align:center}
-.stat-n{font-size:26px;font-weight:500}
-.stat-l{font-size:11px;color:#888780;margin-top:2px}
+h2{font-size:16px;font-weight:500;margin:32px 0 10px;color:#3d3d3a}
+.meta{font-size:13px;color:#888780;margin-bottom:28px}
+.hero{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);border-radius:16px;padding:32px;margin-bottom:24px;color:#fff}
+.hero-title{font-size:24px;font-weight:600;margin:0 0 4px;color:#fff}
+.hero-sub{font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:28px}
+.scores-row{display:flex;align-items:center;gap:32px;flex-wrap:wrap}
+.score-divider{width:1px;height:80px;background:rgba(255,255,255,0.15)}
+.hero-stats{display:flex;gap:24px;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat-n{font-size:28px;font-weight:600;line-height:1}
+.hero-stat-l{font-size:11px;color:rgba(255,255,255,0.55);margin-top:3px}
+.severity-strip{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap}
+.sev-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.1);border-radius:20px;padding:5px 12px;font-size:12px;color:#fff}
+.sev-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .section{background:#fff;border:0.5px solid #D3D1C7;border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.section-title{font-size:12px;font-weight:500;color:#888780;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
 .finding{border:0.5px solid #E8E6DF;border-radius:8px;padding:10px 14px;margin-bottom:6px}
+.finding:last-child{margin-bottom:0}
 .finding-header{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}
-.finding-title{font-size:13px;font-weight:500;color:#3d3d3a;flex:1}
+.finding-title{font-size:13px;font-weight:500;color:#3d3d3a;flex:1;min-width:0}
 .finding-desc{font-size:12px;color:#5F5E5A;line-height:1.5}
-.finding-wcag{font-size:11px;color:#888780;margin-top:3px}
+.finding-wcag{font-size:11px;color:#aaa89f;margin-top:3px}
 .finding img{max-width:100%;border-radius:6px;border:0.5px solid #D3D1C7;margin-top:8px;display:block}
-.mission-row{display:grid;grid-template-columns:120px 1fr 100px 60px 80px;gap:8px;align-items:center;padding:8px 0;border-bottom:0.5px solid #F1EFE8;font-size:13px}
+.mission-row{display:grid;grid-template-columns:130px 1fr 110px 60px 90px;gap:8px;align-items:center;padding:8px 0;border-bottom:0.5px solid #F1EFE8;font-size:13px}
 .mission-row:last-child{border-bottom:none}
-.mission-header{display:grid;grid-template-columns:120px 1fr 100px 60px 80px;gap:8px;font-size:11px;font-weight:500;color:#888780;text-transform:uppercase;letter-spacing:0.5px;padding-bottom:6px;border-bottom:0.5px solid #D3D1C7;margin-bottom:2px}
-.cat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
-.cat{background:#F1EFE8;border-radius:6px;padding:10px 12px}
-.cat-n{font-size:20px;font-weight:500}
-.cat-l{font-size:11px;color:#5F5E5A;text-transform:capitalize}
-.manual-item{padding:6px 0;border-bottom:0.5px solid #F1EFE8;font-size:12px;color:#5F5E5A}
+.mission-header{display:grid;grid-template-columns:130px 1fr 110px 60px 90px;gap:8px;font-size:11px;font-weight:500;color:#888780;text-transform:uppercase;letter-spacing:0.5px;padding-bottom:8px;border-bottom:0.5px solid #D3D1C7;margin-bottom:2px}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-bottom:16px}
+.cat{border-radius:8px;padding:12px 14px;position:relative;overflow:hidden}
+.cat-n{font-size:22px;font-weight:600}
+.cat-l{font-size:11px;margin-top:2px;text-transform:capitalize;opacity:0.75}
+.cat-accent{background:linear-gradient(135deg,#EAF3DE,#D4EDAB)}
+.cat-warn{background:linear-gradient(135deg,#FAEEDA,#F5D49A)}
+.cat-fail{background:linear-gradient(135deg,#FCEBEB,#F5BFBF)}
+.manual-item{padding:7px 0;border-bottom:0.5px solid #F1EFE8;font-size:12px;color:#5F5E5A;display:flex;gap:10px;align-items:baseline}
 .manual-item:last-child{border-bottom:none}
-footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bottom:24px}
+.wcag-tag{font-size:11px;font-weight:500;color:#3C3489;background:#EEEDFE;padding:2px 7px;border-radius:8px;white-space:nowrap;flex-shrink:0}
+footer{text-align:center;font-size:12px;color:#888780;margin-top:40px;padding-bottom:28px;border-top:0.5px solid #D3D1C7;padding-top:20px}
 </style>
 </head>
 <body>
 <div class="container">
 
-<h1>UXRay — UXRay Demo App</h1>
-<div class="meta">
-  6/26/2026, 1:07:53 PM &nbsp;·&nbsp;
-  <code>http://localhost:3000</code> &nbsp;·&nbsp;
-  WCAG 2.1 AA &nbsp;·&nbsp; ~78% automated coverage
-  &nbsp;·&nbsp; 19s
+<div class="hero">
+  <div class="hero-title">UXRay — UXRay Demo App</div>
+  <div class="hero-sub">
+    6/27/2026, 8:30:06 PM
+    &nbsp;·&nbsp; <code style="background:rgba(255,255,255,0.1);padding:1px 6px;border-radius:4px;font-size:12px">http://localhost:3000</code>
+    &nbsp;·&nbsp; WCAG 2.1 AA &nbsp;·&nbsp; ~80% automated coverage
+    &nbsp;·&nbsp; 19s
+  </div>
+
+  <div class="scores-row">
+    
+  <div style="display:flex;flex-direction:column;align-items:center">
+    <svg width="120" height="120" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="50" fill="none" stroke="#F5BFBF" stroke-width="8" transform="rotate(-90 60 60)"/>
+      <circle cx="60" cy="60" r="50" fill="none" stroke="#E24B4A" stroke-width="8"
+        stroke-dasharray="160.22122533307945 153.93804002589988" stroke-linecap="round"
+        transform="rotate(-90 60 60)"/>
+      <text x="60" y="54" text-anchor="middle" dominant-baseline="middle"
+        font-size="26" font-weight="600" fill="#E24B4A" font-family="-apple-system,BlinkMacSystemFont,sans-serif">51</text>
+      <text x="60" y="84" text-anchor="middle" dominant-baseline="middle"
+        font-size="11" fill="rgba(255,255,255,0.55)" font-family="-apple-system,BlinkMacSystemFont,sans-serif">audit score</text>
+    </svg>
+  </div>
+    <div class="score-divider"></div>
+  <div style="display:flex;flex-direction:column;align-items:center">
+    <svg width="120" height="120" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="50" fill="none" stroke="#F5BFBF" stroke-width="8" transform="rotate(-90 60 60)"/>
+      <circle cx="60" cy="60" r="50" fill="none" stroke="#E24B4A" stroke-width="8"
+        stroke-dasharray="116.23892818282235 197.92033717615698" stroke-linecap="round"
+        transform="rotate(-90 60 60)"/>
+      <text x="60" y="54" text-anchor="middle" dominant-baseline="middle"
+        font-size="26" font-weight="600" fill="#E24B4A" font-family="-apple-system,BlinkMacSystemFont,sans-serif">37</text>
+      <text x="60" y="84" text-anchor="middle" dominant-baseline="middle"
+        font-size="11" fill="rgba(255,255,255,0.55)" font-family="-apple-system,BlinkMacSystemFont,sans-serif">persona score</text>
+    </svg>
+  </div>
+    <div class="score-divider"></div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-n">47</div>
+        <div class="hero-stat-l">findings</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-n" style="color:#F5BFBF">8</div>
+        <div class="hero-stat-l">critical</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-n" style="color:#F5D49A">35</div>
+        <div class="hero-stat-l">major</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-n" style="color:rgba(255,255,255,0.7)">4</div>
+        <div class="hero-stat-l">minor</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-n" style="color:rgba(255,255,255,0.5)">21</div>
+        <div class="hero-stat-l">manual gaps</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="severity-strip">
+    <div class="sev-pill"><div class="sev-dot" style="background:#F5BFBF"></div>Critical — blocked for screen readers, keyboard, assistive tech</div>
+    <div class="sev-pill"><div class="sev-dot" style="background:#F5D49A"></div>Major — real barriers with WCAG citation</div>
+    <div class="sev-pill"><div class="sev-dot" style="background:rgba(255,255,255,0.4)"></div>Minor — usability issues, lower impact</div>
+  </div>
 </div>
 
-<div class="stat-grid">
-  <div class="stat"><div class="stat-n" style="color:#E24B4A">0</div><div class="stat-l">audit score</div></div>
-  <div class="stat"><div class="stat-n" style="color:#E24B4A">37</div><div class="stat-l">persona score</div></div>
-  <div class="stat"><div class="stat-n">49</div><div class="stat-l">findings</div></div>
-  <div class="stat"><div class="stat-n" style="color:#E24B4A">10</div><div class="stat-l">critical</div></div>
-  <div class="stat"><div class="stat-n" style="color:#BA7517">35</div><div class="stat-l">major</div></div>
-</div>
+
+  <div style="background:#FAFAF8;border:0.5px solid #E8E6DF;border-radius:8px;padding:14px 16px;margin-top:16px">
+    <div style="font-size:12px;font-weight:500;color:#888780;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">How the score is calculated</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+      <div style="background:#FCEBEB;border-radius:6px;padding:8px 10px">
+        <div style="font-size:18px;font-weight:600;color:#791F1F">8 × 10</div>
+        <div style="font-size:11px;color:#A32D2D;margin-top:2px">critical findings</div>
+      </div>
+      <div style="background:#FAEEDA;border-radius:6px;padding:8px 10px">
+        <div style="font-size:18px;font-weight:600;color:#633806">35 × 5</div>
+        <div style="font-size:11px;color:#854F0B;margin-top:2px">major findings</div>
+      </div>
+      <div style="background:#F1EFE8;border-radius:6px;padding:8px 10px">
+        <div style="font-size:18px;font-weight:600;color:#444441">4 × 2</div>
+        <div style="font-size:11px;color:#5F5E5A;margin-top:2px">minor findings</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:#5F5E5A;border-top:0.5px solid #E8E6DF;padding-top:10px">
+      100 − (8×10 + 35×5 + 4×2) = 100 − 263 = <strong style="color:#E24B4A">0</strong>
+      &nbsp;·&nbsp; Weights are configurable in <code>uxray.config.js</code> via <code>scoring: { critical, major, minor }</code>
+    </div>
+  </div>
 
 
 <h2>User journey health scores</h2>
 <div class="section">
-  <div class="cat-grid" style="margin-bottom:16px">
+  <div class="cat-grid">
     
-      <div class="cat">
-        <div class="cat-n" style="color:#E24B4A">54</div>
-        <div class="cat-l">accessibility</div>
-      </div>
-      <div class="cat">
-        <div class="cat-n" style="color:#BA7517">61</div>
-        <div class="cat-l">keyboard</div>
-      </div>
-      <div class="cat">
-        <div class="cat-n" style="color:#E24B4A">0</div>
-        <div class="cat-l">completion</div>
-      </div>
-      <div class="cat">
-        <div class="cat-n" style="color:#E24B4A">50</div>
-        <div class="cat-l">responsiveness</div>
-      </div>
+    <div class="cat cat-fail">
+      <div class="cat-n" style="color:#E24B4A">54</div>
+      <div class="cat-l" style="color:#E24B4A">accessibility</div>
+    </div>
+    <div class="cat cat-warn">
+      <div class="cat-n" style="color:#BA7517">61</div>
+      <div class="cat-l" style="color:#BA7517">keyboard</div>
+    </div>
+    <div class="cat cat-fail">
+      <div class="cat-n" style="color:#E24B4A">0</div>
+      <div class="cat-l" style="color:#E24B4A">completion</div>
+    </div>
+    <div class="cat cat-fail">
+      <div class="cat-n" style="color:#E24B4A">50</div>
+      <div class="cat-l" style="color:#E24B4A">responsiveness</div>
+    </div>
   </div>
-  <div class="mission-header"><span>Persona</span><span>Mission</span><span>Score</span><span>Passed</span><span>Status</span></div>
+  <div class="mission-header">
+    <span>Persona</span><span>Mission</span><span>Score</span><span>Passed</span><span>Status</span>
+  </div>
   
-    <div class="mission-row">
-      <span style="color:#5F5E5A;font-size:12px">Screen Reader User</span>
-      <span style="font-weight:500">Create form</span>
-      <span><div style="display:inline-block;vertical-align:middle;background:#F1EFE8;border-radius:4px;height:7px;width:80px;overflow:hidden"><div style="background:#639922;width:80px;height:100%;border-radius:4px"></div></div> <span style="font-size:13px;font-weight:500;color:#639922;margin-left:6px">100</span></span>
-      <span style="font-size:12px;color:#5F5E5A">7/7</span>
-      <span><span style="background:#EAF3DE;color:#639922;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Pass</span></span>
-    </div>
-    <div class="mission-row">
-      <span style="color:#5F5E5A;font-size:12px">Screen Reader User</span>
-      <span style="font-weight:500">Cancel modal</span>
-      <span><div style="display:inline-block;vertical-align:middle;background:#F1EFE8;border-radius:4px;height:7px;width:80px;overflow:hidden"><div style="background:#E24B4A;width:20px;height:100%;border-radius:4px"></div></div> <span style="font-size:13px;font-weight:500;color:#E24B4A;margin-left:6px">25</span></span>
-      <span style="font-size:12px;color:#5F5E5A">1/2</span>
-      <span><span style="background:#FCEBEB;color:#E24B4A;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Fail</span></span>
-    </div>
-    <div class="mission-row">
-      <span style="color:#5F5E5A;font-size:12px">Keyboard User</span>
-      <span style="font-weight:500">Create form</span>
-      <span><div style="display:inline-block;vertical-align:middle;background:#F1EFE8;border-radius:4px;height:7px;width:80px;overflow:hidden"><div style="background:#E24B4A;width:32px;height:100%;border-radius:4px"></div></div> <span style="font-size:13px;font-weight:500;color:#E24B4A;margin-left:6px">40</span></span>
-      <span style="font-size:12px;color:#5F5E5A">2/4</span>
-      <span><span style="background:#FCEBEB;color:#E24B4A;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Fail</span></span>
-    </div>
-    <div class="mission-row">
-      <span style="color:#5F5E5A;font-size:12px">Mobile User</span>
-      <span style="font-weight:500">Campaigns</span>
-      <span><div style="display:inline-block;vertical-align:middle;background:#F1EFE8;border-radius:4px;height:7px;width:80px;overflow:hidden"><div style="background:#E24B4A;width:0px;height:100%;border-radius:4px"></div></div> <span style="font-size:13px;font-weight:500;color:#E24B4A;margin-left:6px">0</span></span>
-      <span style="font-size:12px;color:#5F5E5A">0/2</span>
-      <span><span style="background:#FCEBEB;color:#E24B4A;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Fail</span></span>
-    </div>
-    <div class="mission-row">
-      <span style="color:#5F5E5A;font-size:12px">Mobile User</span>
-      <span style="font-weight:500">Detail</span>
-      <span><div style="display:inline-block;vertical-align:middle;background:#F1EFE8;border-radius:4px;height:7px;width:80px;overflow:hidden"><div style="background:#E24B4A;width:0px;height:100%;border-radius:4px"></div></div> <span style="font-size:13px;font-weight:500;color:#E24B4A;margin-left:6px">0</span></span>
-      <span style="font-size:12px;color:#5F5E5A">0/2</span>
-      <span><span style="background:#FCEBEB;color:#E24B4A;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Fail</span></span>
-    </div>
-    <div class="mission-row">
-      <span style="color:#5F5E5A;font-size:12px">Senior User</span>
-      <span style="font-weight:500">Campaigns</span>
-      <span><div style="display:inline-block;vertical-align:middle;background:#F1EFE8;border-radius:4px;height:7px;width:80px;overflow:hidden"><div style="background:#E24B4A;width:22px;height:100%;border-radius:4px"></div></div> <span style="font-size:13px;font-weight:500;color:#E24B4A;margin-left:6px">27</span></span>
-      <span style="font-size:12px;color:#5F5E5A">1/4</span>
-      <span><span style="background:#FCEBEB;color:#E24B4A;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Fail</span></span>
-    </div>
-    <div class="mission-row">
-      <span style="color:#5F5E5A;font-size:12px">Senior User</span>
-      <span style="font-weight:500">Detail</span>
-      <span><div style="display:inline-block;vertical-align:middle;background:#F1EFE8;border-radius:4px;height:7px;width:80px;overflow:hidden"><div style="background:#BA7517;width:51px;height:100%;border-radius:4px"></div></div> <span style="font-size:13px;font-weight:500;color:#BA7517;margin-left:6px">64</span></span>
-      <span style="font-size:12px;color:#5F5E5A">2/4</span>
-      <span><span style="background:#FAEEDA;color:#BA7517;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Needs work</span></span>
-    </div>
+  <div class="mission-row">
+    <span style="color:#5F5E5A;font-size:12px">Screen Reader User</span>
+    <span style="font-weight:500;font-size:13px">Create form</span>
+    <span style="display:flex;align-items:center;gap:6px">
+      <div style="display:inline-block;vertical-align:middle;background:#F1EFE8;border-radius:4px;height:7px;width:70px;overflow:hidden"><div style="background:#639922;width:70px;height:100%;border-radius:4px"></div></div>
+      <span style="font-size:13px;font-weight:600;color:#639922">100</span>
+    </span>
+    <span style="font-size:12px;color:#5F5E5A">7/7</span>
+    <span><span style="background:#EAF3DE;color:#639922;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Pass</span></span>
+  </div>
+  <div class="mission-row">
+    <span style="color:#5F5E5A;font-size:12px">Screen Reader User</span>
+    <span style="font-weight:500;font-size:13px">Cancel modal</span>
+    <span style="display:flex;align-items:center;gap:6px">
+      <div style="display:inline-block;vertical-align:middle;background:#F1EFE8;border-radius:4px;height:7px;width:70px;overflow:hidden"><div style="background:#E24B4A;width:18px;height:100%;border-radius:4px"></div></div>
+      <span style="font-size:13px;font-weight:600;color:#E24B4A">25</span>
+    </span>
+    <span style="font-size:12px;color:#5F5E5A">1/2</span>
+    <span><span style="background:#FCEBEB;color:#E24B4A;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Fail</span></span>
+  </div>
+  <div class="mission-row">
+    <span style="color:#5F5E5A;font-size:12px">Keyboard User</span>
+    <span style="font-weight:500;font-size:13px">Create form</span>
+    <span style="display:flex;align-items:center;gap:6px">
+      <div style="display:inline-block;vertical-align:middle;background:#F1EFE8;border-radius:4px;height:7px;width:70px;overflow:hidden"><div style="background:#E24B4A;width:28px;height:100%;border-radius:4px"></div></div>
+      <span style="font-size:13px;font-weight:600;color:#E24B4A">40</span>
+    </span>
+    <span style="font-size:12px;color:#5F5E5A">2/4</span>
+    <span><span style="background:#FCEBEB;color:#E24B4A;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Fail</span></span>
+  </div>
+  <div class="mission-row">
+    <span style="color:#5F5E5A;font-size:12px">Mobile User</span>
+    <span style="font-weight:500;font-size:13px">Campaigns</span>
+    <span style="display:flex;align-items:center;gap:6px">
+      <div style="display:inline-block;vertical-align:middle;background:#F1EFE8;border-radius:4px;height:7px;width:70px;overflow:hidden"><div style="background:#E24B4A;width:0px;height:100%;border-radius:4px"></div></div>
+      <span style="font-size:13px;font-weight:600;color:#E24B4A">0</span>
+    </span>
+    <span style="font-size:12px;color:#5F5E5A">0/2</span>
+    <span><span style="background:#FCEBEB;color:#E24B4A;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Fail</span></span>
+  </div>
+  <div class="mission-row">
+    <span style="color:#5F5E5A;font-size:12px">Mobile User</span>
+    <span style="font-weight:500;font-size:13px">Detail</span>
+    <span style="display:flex;align-items:center;gap:6px">
+      <div style="display:inline-block;vertical-align:middle;background:#F1EFE8;border-radius:4px;height:7px;width:70px;overflow:hidden"><div style="background:#E24B4A;width:0px;height:100%;border-radius:4px"></div></div>
+      <span style="font-size:13px;font-weight:600;color:#E24B4A">0</span>
+    </span>
+    <span style="font-size:12px;color:#5F5E5A">0/2</span>
+    <span><span style="background:#FCEBEB;color:#E24B4A;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Fail</span></span>
+  </div>
+  <div class="mission-row">
+    <span style="color:#5F5E5A;font-size:12px">Senior User</span>
+    <span style="font-weight:500;font-size:13px">Campaigns</span>
+    <span style="display:flex;align-items:center;gap:6px">
+      <div style="display:inline-block;vertical-align:middle;background:#F1EFE8;border-radius:4px;height:7px;width:70px;overflow:hidden"><div style="background:#E24B4A;width:19px;height:100%;border-radius:4px"></div></div>
+      <span style="font-size:13px;font-weight:600;color:#E24B4A">27</span>
+    </span>
+    <span style="font-size:12px;color:#5F5E5A">1/4</span>
+    <span><span style="background:#FCEBEB;color:#E24B4A;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Fail</span></span>
+  </div>
+  <div class="mission-row">
+    <span style="color:#5F5E5A;font-size:12px">Senior User</span>
+    <span style="font-weight:500;font-size:13px">Detail</span>
+    <span style="display:flex;align-items:center;gap:6px">
+      <div style="display:inline-block;vertical-align:middle;background:#F1EFE8;border-radius:4px;height:7px;width:70px;overflow:hidden"><div style="background:#BA7517;width:45px;height:100%;border-radius:4px"></div></div>
+      <span style="font-size:13px;font-weight:600;color:#BA7517">64</span>
+    </span>
+    <span style="font-size:12px;color:#5F5E5A">2/4</span>
+    <span><span style="background:#FAEEDA;color:#BA7517;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Needs work</span></span>
+  </div>
 </div>
 
-<h2>Findings (49)</h2>
+<h2>Findings (47)</h2>
 
-<div class="section">
-  <div style="font-size:12px;font-weight:500;color:#888780;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">critical — 10</div>
+<div class="section" style="padding:0;overflow:hidden">
+  <div style="background:#FFF0F0;padding:10px 20px;border-bottom:0.5px solid #E8E6DF">
+    <span style="font-size:12px;font-weight:600;color:#A32D2D;text-transform:uppercase;letter-spacing:0.5px">critical</span>
+    <span style="font-size:12px;color:#A32D2D;opacity:0.7;margin-left:6px">— 8 findings</span>
+  </div>
+  <div style="padding:12px 20px">
   
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FCEBEB;color:#791F1F;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">critical</span>
       <span style="background:#E6F1FB;color:#0C447C;font-size:11px;padding:2px 7px;border-radius:10px">axe</span>
       <span class="finding-title">Ensure buttons have discernible text</span>
-      <code style="font-size:11px;color:#888780">/campaigns</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns</code>
     </div>
     <div class="finding-desc">[button-name] Buttons must have discernible text — 18 node(s). https://dequeuniversity.com/rules/axe/4.12/button-name?application=playwright</div>
     <div class="finding-wcag">WCAG 2a · WCAG 4.12</div>
@@ -149,7 +264,7 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
       <span style="background:#FCEBEB;color:#791F1F;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">critical</span>
       <span style="background:#E6F1FB;color:#0C447C;font-size:11px;padding:2px 7px;border-radius:10px">axe</span>
       <span class="finding-title">Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds</span>
-      <code style="font-size:11px;color:#888780">/campaigns</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns</code>
     </div>
     <div class="finding-desc">[color-contrast] Elements must meet minimum color contrast ratio thresholds — 3 node(s). https://dequeuniversity.com/rules/axe/4.12/color-contrast?application=playwright</div>
     <div class="finding-wcag">WCAG 2aa · WCAG 1.43</div>
@@ -160,7 +275,7 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
       <span style="background:#FCEBEB;color:#791F1F;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">critical</span>
       <span style="background:#E6F1FB;color:#0C447C;font-size:11px;padding:2px 7px;border-radius:10px">axe</span>
       <span class="finding-title">Ensure <img> elements have alternative text or a role of none or presentation</span>
-      <code style="font-size:11px;color:#888780">/campaigns</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns</code>
     </div>
     <div class="finding-desc">[image-alt] Images must have alternative text — 1 node(s). https://dequeuniversity.com/rules/axe/4.12/image-alt?application=playwright</div>
     <div class="finding-wcag">WCAG 2a · WCAG 1.11</div>
@@ -171,7 +286,7 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
       <span style="background:#FCEBEB;color:#791F1F;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">critical</span>
       <span style="background:#E6F1FB;color:#0C447C;font-size:11px;padding:2px 7px;border-radius:10px">axe</span>
       <span class="finding-title">Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds</span>
-      <code style="font-size:11px;color:#888780">/campaigns/CMP-1001</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/CMP-1001</code>
     </div>
     <div class="finding-desc">[color-contrast] Elements must meet minimum color contrast ratio thresholds — 1 node(s). https://dequeuniversity.com/rules/axe/4.12/color-contrast?application=playwright</div>
     <div class="finding-wcag">WCAG 2aa · WCAG 1.43</div>
@@ -182,7 +297,7 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
       <span style="background:#FCEBEB;color:#791F1F;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">critical</span>
       <span style="background:#E6F1FB;color:#0C447C;font-size:11px;padding:2px 7px;border-radius:10px">axe</span>
       <span class="finding-title">Ensure <img> elements have alternative text or a role of none or presentation</span>
-      <code style="font-size:11px;color:#888780">/campaigns/CMP-1001</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/CMP-1001</code>
     </div>
     <div class="finding-desc">[image-alt] Images must have alternative text — 1 node(s). https://dequeuniversity.com/rules/axe/4.12/image-alt?application=playwright</div>
     <div class="finding-wcag">WCAG 2a · WCAG 1.11</div>
@@ -193,7 +308,7 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
       <span style="background:#FCEBEB;color:#791F1F;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">critical</span>
       <span style="background:#E6F1FB;color:#0C447C;font-size:11px;padding:2px 7px;border-radius:10px">axe</span>
       <span class="finding-title">Ensure <img> elements have alternative text or a role of none or presentation</span>
-      <code style="font-size:11px;color:#888780">/campaigns/new</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/new</code>
     </div>
     <div class="finding-desc">[image-alt] Images must have alternative text — 1 node(s). https://dequeuniversity.com/rules/axe/4.12/image-alt?application=playwright</div>
     <div class="finding-wcag">WCAG 2a · WCAG 1.11</div>
@@ -204,9 +319,9 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
       <span style="background:#FCEBEB;color:#791F1F;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">critical</span>
       <span style="background:#EEEDFE;color:#3C3489;font-size:11px;padding:2px 7px;border-radius:10px">keyboard</span>
       <span class="finding-title">Keyboard trap detected</span>
-      <code style="font-size:11px;color:#888780">/campaigns</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns</code>
     </div>
-    <div class="finding-desc">Focus cycled to <a> "Winter Welcome Back" 3+ times — keyboard users cannot exit this element.</div>
+    <div class="finding-desc">Focus cycled to <a> "Business Class Upgrade Bonus" 5+ times — keyboard users cannot exit this element.</div>
     <div class="finding-wcag">WCAG 2.1.2</div>
     <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/kb-trap--campaigns.png" alt="Screenshot: Keyboard trap detected" loading="lazy">
   </div>
@@ -214,45 +329,28 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
     <div class="finding-header">
       <span style="background:#FCEBEB;color:#791F1F;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">critical</span>
       <span style="background:#EEEDFE;color:#3C3489;font-size:11px;padding:2px 7px;border-radius:10px">keyboard</span>
-      <span class="finding-title">Keyboard trap detected</span>
-      <code style="font-size:11px;color:#888780">/campaigns/CMP-1001</code>
-    </div>
-    <div class="finding-desc">Focus cycled to <button> "Activity" 3+ times — keyboard users cannot exit this element.</div>
-    <div class="finding-wcag">WCAG 2.1.2</div>
-    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/kb-trap--campaigns-CMP-1001.png" alt="Screenshot: Keyboard trap detected" loading="lazy">
-  </div>
-  <div class="finding">
-    <div class="finding-header">
-      <span style="background:#FCEBEB;color:#791F1F;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">critical</span>
-      <span style="background:#EEEDFE;color:#3C3489;font-size:11px;padding:2px 7px;border-radius:10px">keyboard</span>
       <span class="finding-title">Modal not dismissible with Escape</span>
-      <code style="font-size:11px;color:#888780">/campaigns/CMP-1001</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/CMP-1001</code>
     </div>
     <div class="finding-desc">Dialog triggered by "Cancel campaign" does not close on Escape — keyboard trap.</div>
     <div class="finding-wcag">WCAG 2.1.2</div>
     <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/kb-modal-escape--campaigns-CMP-1001.png" alt="Screenshot: Modal not dismissible with Escape" loading="lazy">
   </div>
-  <div class="finding">
-    <div class="finding-header">
-      <span style="background:#FCEBEB;color:#791F1F;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">critical</span>
-      <span style="background:#EEEDFE;color:#3C3489;font-size:11px;padding:2px 7px;border-radius:10px">keyboard</span>
-      <span class="finding-title">Keyboard trap detected</span>
-      <code style="font-size:11px;color:#888780">/campaigns/new</code>
-    </div>
-    <div class="finding-desc">Focus cycled to <input> "" 3+ times — keyboard users cannot exit this element.</div>
-    <div class="finding-wcag">WCAG 2.1.2</div>
-    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/kb-trap--campaigns-new.png" alt="Screenshot: Keyboard trap detected" loading="lazy">
   </div>
 </div>
-<div class="section">
-  <div style="font-size:12px;font-weight:500;color:#888780;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">major — 35</div>
+<div class="section" style="padding:0;overflow:hidden">
+  <div style="background:#FFF8EE;padding:10px 20px;border-bottom:0.5px solid #E8E6DF">
+    <span style="font-size:12px;font-weight:600;color:#854F0B;text-transform:uppercase;letter-spacing:0.5px">major</span>
+    <span style="font-size:12px;color:#854F0B;opacity:0.7;margin-left:6px">— 35 findings</span>
+  </div>
+  <div style="padding:12px 20px">
   
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
       <span style="background:#E6F1FB;color:#0C447C;font-size:11px;padding:2px 7px;border-radius:10px">axe</span>
       <span class="finding-title">Ensure the order of headings is semantically correct</span>
-      <code style="font-size:11px;color:#888780">/campaigns/CMP-1001</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/CMP-1001</code>
     </div>
     <div class="finding-desc">[heading-order] Heading levels should only increase by one — 1 node(s). https://dequeuniversity.com/rules/axe/4.12/heading-order?application=playwright</div>
     <div class="finding-wcag">WCAG (unknown)</div>
@@ -263,7 +361,7 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
       <span style="background:#EEEDFE;color:#3C3489;font-size:11px;padding:2px 7px;border-radius:10px">keyboard</span>
       <span class="finding-title">No skip navigation link</span>
-      <code style="font-size:11px;color:#888780">/campaigns</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns</code>
     </div>
     <div class="finding-desc">First focusable element is <a> "Campaigns" — not a skip link. Keyboard users must tab through nav on every page.</div>
     <div class="finding-wcag">WCAG 2.4.1</div>
@@ -274,7 +372,7 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
       <span style="background:#EEEDFE;color:#3C3489;font-size:11px;padding:2px 7px;border-radius:10px">keyboard</span>
       <span class="finding-title">No skip navigation link</span>
-      <code style="font-size:11px;color:#888780">/campaigns/CMP-1001</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/CMP-1001</code>
     </div>
     <div class="finding-desc">First focusable element is <a> "Campaigns" — not a skip link. Keyboard users must tab through nav on every page.</div>
     <div class="finding-wcag">WCAG 2.4.1</div>
@@ -285,7 +383,7 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
       <span style="background:#EEEDFE;color:#3C3489;font-size:11px;padding:2px 7px;border-radius:10px">keyboard</span>
       <span class="finding-title">No skip navigation link</span>
-      <code style="font-size:11px;color:#888780">/campaigns/new</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/new</code>
     </div>
     <div class="finding-desc">First focusable element is <a> "Campaigns" — not a skip link. Keyboard users must tab through nav on every page.</div>
     <div class="finding-wcag">WCAG 2.4.1</div>
@@ -296,40 +394,40 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 7px;border-radius:10px">responsive</span>
       <span class="finding-title">Content overflow at 375px</span>
-      <code style="font-size:11px;color:#888780">/campaigns</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns</code>
     </div>
     <div class="finding-desc"><body> overflows by 529px. Page has horizontal scroll</div>
     <div class="finding-wcag">WCAG 1.4.10</div>
-    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-mobile--campaigns.png" alt="Screenshot: Content overflow at 375px" loading="lazy">
+    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-375px--campaigns.png" alt="Screenshot: Content overflow at 375px" loading="lazy">
   </div>
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 7px;border-radius:10px">responsive</span>
       <span class="finding-title">Content overflow at 375px</span>
-      <code style="font-size:11px;color:#888780">/campaigns</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns</code>
     </div>
     <div class="finding-desc"><table.campaigns-list__table> overflows by 496px. Table overflows with no scroll container</div>
     <div class="finding-wcag">WCAG 1.4.10</div>
-    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-mobile--campaigns.png" alt="Screenshot: Content overflow at 375px" loading="lazy">
+    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-375px--campaigns.png" alt="Screenshot: Content overflow at 375px" loading="lazy">
   </div>
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 7px;border-radius:10px">responsive</span>
       <span class="finding-title">Touch targets below 44px at 375px</span>
-      <code style="font-size:11px;color:#888780">/campaigns</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns</code>
     </div>
     <div class="finding-desc">20 element(s) too small. e.g. <button .app-layout__theme-toggle> "Switch to dark mode" 35×40px (need 44px)</div>
     <div class="finding-wcag">WCAG 2.5.5</div>
-    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-mobile--campaigns.png" alt="Screenshot: Touch targets below 44px at 375px" loading="lazy">
+    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-375px--campaigns.png" alt="Screenshot: Touch targets below 44px at 375px" loading="lazy">
   </div>
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 7px;border-radius:10px">responsive</span>
       <span class="finding-title">Content overflows in landscape orientation</span>
-      <code style="font-size:11px;color:#888780">/campaigns</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns</code>
     </div>
     <div class="finding-desc">Page overflows horizontally when viewport rotated to landscape (812×320).</div>
     <div class="finding-wcag">WCAG 1.3.4</div>
@@ -340,106 +438,106 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 7px;border-radius:10px">responsive</span>
       <span class="finding-title">Content overflow at 375px</span>
-      <code style="font-size:11px;color:#888780">/campaigns/CMP-1001</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/CMP-1001</code>
     </div>
     <div class="finding-desc"><body> overflows by 91px. Page has horizontal scroll</div>
     <div class="finding-wcag">WCAG 1.4.10</div>
-    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-mobile--campaigns-CMP-1001.png" alt="Screenshot: Content overflow at 375px" loading="lazy">
+    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-375px--campaigns-CMP-1001.png" alt="Screenshot: Content overflow at 375px" loading="lazy">
   </div>
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 7px;border-radius:10px">responsive</span>
       <span class="finding-title">Touch targets below 44px at 375px</span>
-      <code style="font-size:11px;color:#888780">/campaigns/CMP-1001</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/CMP-1001</code>
     </div>
     <div class="finding-desc">5 element(s) too small. e.g. <button .app-layout__theme-toggle> "Switch to dark mode" 35×40px (need 44px)</div>
     <div class="finding-wcag">WCAG 2.5.5</div>
-    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-mobile--campaigns-CMP-1001.png" alt="Screenshot: Touch targets below 44px at 375px" loading="lazy">
+    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-375px--campaigns-CMP-1001.png" alt="Screenshot: Touch targets below 44px at 375px" loading="lazy">
   </div>
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 7px;border-radius:10px">responsive</span>
       <span class="finding-title">Content overflow at 375px</span>
-      <code style="font-size:11px;color:#888780">/campaigns/new</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/new</code>
     </div>
     <div class="finding-desc"><body> overflows by 91px. Page has horizontal scroll</div>
     <div class="finding-wcag">WCAG 1.4.10</div>
-    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-mobile--campaigns-new.png" alt="Screenshot: Content overflow at 375px" loading="lazy">
+    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-375px--campaigns-new.png" alt="Screenshot: Content overflow at 375px" loading="lazy">
   </div>
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 7px;border-radius:10px">responsive</span>
       <span class="finding-title">Touch targets below 44px at 375px</span>
-      <code style="font-size:11px;color:#888780">/campaigns/new</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/new</code>
     </div>
     <div class="finding-desc">1 element(s) too small. e.g. <button .app-layout__theme-toggle> "Switch to dark mode" 35×40px (need 44px)</div>
     <div class="finding-wcag">WCAG 2.5.5</div>
-    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-mobile--campaigns-new.png" alt="Screenshot: Touch targets below 44px at 375px" loading="lazy">
+    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-375px--campaigns-new.png" alt="Screenshot: Touch targets below 44px at 375px" loading="lazy">
   </div>
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 7px;border-radius:10px">responsive</span>
       <span class="finding-title">Content overflow at 768px</span>
-      <code style="font-size:11px;color:#888780">/campaigns</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns</code>
     </div>
     <div class="finding-desc"><body> overflows by 136px. Page has horizontal scroll</div>
     <div class="finding-wcag">WCAG 1.4.10</div>
-    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-tablet--campaigns.png" alt="Screenshot: Content overflow at 768px" loading="lazy">
+    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-768px--campaigns.png" alt="Screenshot: Content overflow at 768px" loading="lazy">
   </div>
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 7px;border-radius:10px">responsive</span>
       <span class="finding-title">Content overflow at 768px</span>
-      <code style="font-size:11px;color:#888780">/campaigns</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns</code>
     </div>
     <div class="finding-desc"><table.campaigns-list__table> overflows by 103px. Table overflows with no scroll container</div>
     <div class="finding-wcag">WCAG 1.4.10</div>
-    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-tablet--campaigns.png" alt="Screenshot: Content overflow at 768px" loading="lazy">
+    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-768px--campaigns.png" alt="Screenshot: Content overflow at 768px" loading="lazy">
   </div>
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 7px;border-radius:10px">responsive</span>
       <span class="finding-title">Touch targets below 44px at 768px</span>
-      <code style="font-size:11px;color:#888780">/campaigns</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns</code>
     </div>
     <div class="finding-desc">20 element(s) too small. e.g. <a .app-layout__nav-link> "nav-campaigns" 106×37px (need 44px)</div>
     <div class="finding-wcag">WCAG 2.5.5</div>
-    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-tablet--campaigns.png" alt="Screenshot: Touch targets below 44px at 768px" loading="lazy">
+    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-768px--campaigns.png" alt="Screenshot: Touch targets below 44px at 768px" loading="lazy">
   </div>
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 7px;border-radius:10px">responsive</span>
       <span class="finding-title">Touch targets below 44px at 768px</span>
-      <code style="font-size:11px;color:#888780">/campaigns/CMP-1001</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/CMP-1001</code>
     </div>
     <div class="finding-desc">7 element(s) too small. e.g. <a .app-layout__nav-link> "nav-campaigns" 106×37px (need 44px)</div>
     <div class="finding-wcag">WCAG 2.5.5</div>
-    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-tablet--campaigns-CMP-1001.png" alt="Screenshot: Touch targets below 44px at 768px" loading="lazy">
+    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-768px--campaigns-CMP-1001.png" alt="Screenshot: Touch targets below 44px at 768px" loading="lazy">
   </div>
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 7px;border-radius:10px">responsive</span>
       <span class="finding-title">Touch targets below 44px at 768px</span>
-      <code style="font-size:11px;color:#888780">/campaigns/new</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/new</code>
     </div>
     <div class="finding-desc">3 element(s) too small. e.g. <a .app-layout__nav-link> "nav-campaigns" 106×37px (need 44px)</div>
     <div class="finding-wcag">WCAG 2.5.5</div>
-    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-tablet--campaigns-new.png" alt="Screenshot: Touch targets below 44px at 768px" loading="lazy">
+    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-768px--campaigns-new.png" alt="Screenshot: Touch targets below 44px at 768px" loading="lazy">
   </div>
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 7px;border-radius:10px">responsive</span>
       <span class="finding-title">Dark mode contrast failures</span>
-      <code style="font-size:11px;color:#888780">/campaigns</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns</code>
     </div>
     <div class="finding-desc">3 element(s) fail contrast in dark mode. e.g. span "scheduled" ratio=2.97 (need 4.5)</div>
     <div class="finding-wcag">WCAG 1.4.3</div>
@@ -448,9 +546,9 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
-      <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
+      <span style="background:#F5EDF8;color:#5C2D7A;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
       <span class="finding-title">Non-text contrast failure</span>
-      <code style="font-size:11px;color:#888780">/campaigns</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns</code>
     </div>
     <div class="finding-desc"><button[data-testid=theme-toggle]> border vs page-background: ratio 1.21 (need 3). Border: rgb(224, 224, 224)</div>
     <div class="finding-wcag">WCAG 1.4.11</div>
@@ -459,9 +557,9 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
-      <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
+      <span style="background:#F5EDF8;color:#5C2D7A;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
       <span class="finding-title">Accessible name does not contain visible label</span>
-      <code style="font-size:11px;color:#888780">/campaigns</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns</code>
     </div>
     <div class="finding-desc"><button data-testid="theme-toggle"> is visually labelled "🌙" but aria-label is "Switch to dark mode". Voice-control users saying "🌙" cannot activate this control. Fix: make aria-label start with or contain "🌙".</div>
     <div class="finding-wcag">WCAG 2.5.3</div>
@@ -470,9 +568,9 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
-      <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
+      <span style="background:#F5EDF8;color:#5C2D7A;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
       <span class="finding-title">No aria-live region for status messages</span>
-      <code style="font-size:11px;color:#888780">/campaigns</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns</code>
     </div>
     <div class="finding-desc">Page has action buttons (Create campaign) but no role="status" or aria-live region. Success/error outcomes won't be announced to screen reader users.</div>
     <div class="finding-wcag">WCAG 4.1.3</div>
@@ -481,9 +579,9 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
-      <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
+      <span style="background:#F5EDF8;color:#5C2D7A;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
       <span class="finding-title">Non-text contrast failure</span>
-      <code style="font-size:11px;color:#888780">/campaigns/CMP-1001</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/CMP-1001</code>
     </div>
     <div class="finding-desc"><button[data-testid=theme-toggle]> border vs page-background: ratio 1.21 (need 3). Border: rgb(224, 224, 224)</div>
     <div class="finding-wcag">WCAG 1.4.11</div>
@@ -492,9 +590,9 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
-      <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
+      <span style="background:#F5EDF8;color:#5C2D7A;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
       <span class="finding-title">Accessible name does not contain visible label</span>
-      <code style="font-size:11px;color:#888780">/campaigns/CMP-1001</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/CMP-1001</code>
     </div>
     <div class="finding-desc"><button data-testid="theme-toggle"> is visually labelled "🌙" but aria-label is "Switch to dark mode". Voice-control users saying "🌙" cannot activate this control. Fix: make aria-label start with or contain "🌙".</div>
     <div class="finding-wcag">WCAG 2.5.3</div>
@@ -503,9 +601,9 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
-      <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
+      <span style="background:#F5EDF8;color:#5C2D7A;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
       <span class="finding-title">Non-text contrast failure</span>
-      <code style="font-size:11px;color:#888780">/campaigns/new</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/new</code>
     </div>
     <div class="finding-desc"><button[data-testid=theme-toggle]> border vs page-background: ratio 1.21 (need 3). Border: rgb(224, 224, 224)</div>
     <div class="finding-wcag">WCAG 1.4.11</div>
@@ -514,9 +612,9 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
-      <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
+      <span style="background:#F5EDF8;color:#5C2D7A;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
       <span class="finding-title">Non-text contrast failure</span>
-      <code style="font-size:11px;color:#888780">/campaigns/new</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/new</code>
     </div>
     <div class="finding-desc"><input#«r0»[data-testid=campaign-form-name]> border vs page-background: ratio 1.21 (need 3). Border: rgb(224, 224, 224)</div>
     <div class="finding-wcag">WCAG 1.4.11</div>
@@ -525,9 +623,9 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
-      <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
+      <span style="background:#F5EDF8;color:#5C2D7A;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
       <span class="finding-title">Non-text contrast failure</span>
-      <code style="font-size:11px;color:#888780">/campaigns/new</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/new</code>
     </div>
     <div class="finding-desc"><input#«r1»[data-testid=campaign-form-description]> border vs page-background: ratio 1.21 (need 3). Border: rgb(224, 224, 224)</div>
     <div class="finding-wcag">WCAG 1.4.11</div>
@@ -536,9 +634,9 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
-      <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
+      <span style="background:#F5EDF8;color:#5C2D7A;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
       <span class="finding-title">Non-text contrast failure</span>
-      <code style="font-size:11px;color:#888780">/campaigns/new</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/new</code>
     </div>
     <div class="finding-desc"><input#«r2»[data-testid=campaign-form-origin]> border vs page-background: ratio 1.21 (need 3). Border: rgb(224, 224, 224)</div>
     <div class="finding-wcag">WCAG 1.4.11</div>
@@ -547,9 +645,9 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
-      <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
+      <span style="background:#F5EDF8;color:#5C2D7A;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
       <span class="finding-title">Non-text contrast failure</span>
-      <code style="font-size:11px;color:#888780">/campaigns/new</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/new</code>
     </div>
     <div class="finding-desc"><input#«r3»[data-testid=campaign-form-destination]> border vs page-background: ratio 1.21 (need 3). Border: rgb(224, 224, 224)</div>
     <div class="finding-wcag">WCAG 1.4.11</div>
@@ -558,9 +656,9 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
-      <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
+      <span style="background:#F5EDF8;color:#5C2D7A;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
       <span class="finding-title">Non-text contrast failure</span>
-      <code style="font-size:11px;color:#888780">/campaigns/new</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/new</code>
     </div>
     <div class="finding-desc"><select#campaign-form-tier[data-testid=campaign-form-tier]> border vs page-background: ratio 1.21 (need 3). Border: rgb(224, 224, 224)</div>
     <div class="finding-wcag">WCAG 1.4.11</div>
@@ -569,9 +667,9 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
-      <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
+      <span style="background:#F5EDF8;color:#5C2D7A;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
       <span class="finding-title">Non-text contrast failure</span>
-      <code style="font-size:11px;color:#888780">/campaigns/new</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/new</code>
     </div>
     <div class="finding-desc"><input#«r4»[data-testid=campaign-form-start]> border vs page-background: ratio 1.21 (need 3). Border: rgb(224, 224, 224)</div>
     <div class="finding-wcag">WCAG 1.4.11</div>
@@ -580,9 +678,9 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
-      <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
+      <span style="background:#F5EDF8;color:#5C2D7A;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
       <span class="finding-title">Non-text contrast failure</span>
-      <code style="font-size:11px;color:#888780">/campaigns/new</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/new</code>
     </div>
     <div class="finding-desc"><input#«r5»[data-testid=campaign-form-end]> border vs page-background: ratio 1.21 (need 3). Border: rgb(224, 224, 224)</div>
     <div class="finding-wcag">WCAG 1.4.11</div>
@@ -591,9 +689,9 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
-      <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
+      <span style="background:#F5EDF8;color:#5C2D7A;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
       <span class="finding-title">Non-text contrast failure</span>
-      <code style="font-size:11px;color:#888780">/campaigns/new</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/new</code>
     </div>
     <div class="finding-desc"><input#«r6»[data-testid=campaign-form-miles]> border vs page-background: ratio 1.21 (need 3). Border: rgb(224, 224, 224)</div>
     <div class="finding-wcag">WCAG 1.4.11</div>
@@ -602,9 +700,9 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
-      <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
+      <span style="background:#F5EDF8;color:#5C2D7A;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
       <span class="finding-title">Non-text contrast failure</span>
-      <code style="font-size:11px;color:#888780">/campaigns/new</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/new</code>
     </div>
     <div class="finding-desc"><textarea[data-testid=campaign-form-notes]> border vs page-background: ratio 1.21 (need 3). Border: rgb(224, 224, 224)</div>
     <div class="finding-wcag">WCAG 1.4.11</div>
@@ -613,9 +711,9 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
-      <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
+      <span style="background:#F5EDF8;color:#5C2D7A;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
       <span class="finding-title">Accessible name does not contain visible label</span>
-      <code style="font-size:11px;color:#888780">/campaigns/new</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/new</code>
     </div>
     <div class="finding-desc"><button data-testid="theme-toggle"> is visually labelled "🌙" but aria-label is "Switch to dark mode". Voice-control users saying "🌙" cannot activate this control. Fix: make aria-label start with or contain "🌙".</div>
     <div class="finding-wcag">WCAG 2.5.3</div>
@@ -624,24 +722,29 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
   <div class="finding">
     <div class="finding-header">
       <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">major</span>
-      <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
+      <span style="background:#F5EDF8;color:#5C2D7A;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
       <span class="finding-title">No aria-live region for status messages</span>
-      <code style="font-size:11px;color:#888780">/campaigns/new</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/new</code>
     </div>
     <div class="finding-desc">Page has action buttons (Create campaign) but no role="status" or aria-live region. Success/error outcomes won't be announced to screen reader users.</div>
     <div class="finding-wcag">WCAG 4.1.3</div>
     
   </div>
+  </div>
 </div>
-<div class="section">
-  <div style="font-size:12px;font-weight:500;color:#888780;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">minor — 4</div>
+<div class="section" style="padding:0;overflow:hidden">
+  <div style="background:#F8F8F5;padding:10px 20px;border-bottom:0.5px solid #E8E6DF">
+    <span style="font-size:12px;font-weight:600;color:#5F5E5A;text-transform:uppercase;letter-spacing:0.5px">minor</span>
+    <span style="font-size:12px;color:#5F5E5A;opacity:0.7;margin-left:6px">— 4 findings</span>
+  </div>
+  <div style="padding:12px 20px">
   
   <div class="finding">
     <div class="finding-header">
       <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">minor</span>
-      <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
+      <span style="background:#F5EDF8;color:#5C2D7A;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
       <span class="finding-title">Link text is not descriptive</span>
-      <code style="font-size:11px;color:#888780">/campaigns/CMP-1001</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/CMP-1001</code>
     </div>
     <div class="finding-desc">Link "click here" (href: https://example.com/campaign-docs) is vague out of context. Screen reader users navigating by links list hear only "click here". Replace with descriptive text or add aria-label.</div>
     <div class="finding-wcag">WCAG 2.4.4</div>
@@ -650,9 +753,9 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
   <div class="finding">
     <div class="finding-header">
       <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">minor</span>
-      <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
+      <span style="background:#F5EDF8;color:#5C2D7A;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
       <span class="finding-title">Format field missing input instructions</span>
-      <code style="font-size:11px;color:#888780">/campaigns/new</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/new</code>
     </div>
     <div class="finding-desc"><input type="date"> "«r4»" requires a specific format but has no hint text or aria-describedby. Add visible hint text (e.g. "DD/MM/YYYY") linked via aria-describedby.</div>
     <div class="finding-wcag">WCAG 3.3.2</div>
@@ -661,9 +764,9 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
   <div class="finding">
     <div class="finding-header">
       <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">minor</span>
-      <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
+      <span style="background:#F5EDF8;color:#5C2D7A;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
       <span class="finding-title">Format field missing input instructions</span>
-      <code style="font-size:11px;color:#888780">/campaigns/new</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/new</code>
     </div>
     <div class="finding-desc"><input type="date"> "«r5»" requires a specific format but has no hint text or aria-describedby. Add visible hint text (e.g. "DD/MM/YYYY") linked via aria-describedby.</div>
     <div class="finding-wcag">WCAG 3.3.2</div>
@@ -672,13 +775,14 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
   <div class="finding">
     <div class="finding-header">
       <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">minor</span>
-      <span style="background:#F1EFE8;color:#444441;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
+      <span style="background:#F5EDF8;color:#5C2D7A;font-size:11px;padding:2px 7px;border-radius:10px">wcagExtended</span>
       <span class="finding-title">Format field missing input instructions</span>
-      <code style="font-size:11px;color:#888780">/campaigns/new</code>
+      <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">/campaigns/new</code>
     </div>
     <div class="finding-desc"><input type="number"> "«r6»" requires a specific format but has no hint text or aria-describedby. Add visible hint text (e.g. "DD/MM/YYYY") linked via aria-describedby.</div>
     <div class="finding-wcag">WCAG 3.3.2</div>
     
+  </div>
   </div>
 </div>
 
@@ -686,127 +790,150 @@ footer{text-align:center;font-size:12px;color:#888780;margin-top:32px;padding-bo
 <h2>Persona failures</h2>
 <div class="section">
   
-  <div class="finding">
-    <div class="finding-header">
-      <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Screen Reader User</span>
-      <span style="font-size:11px;color:#888780">Cancel modal</span>
-      <span class="finding-title">Focus moves into dialog</span>
+    <div class="finding">
+      <div class="finding-header">
+        <span style="background:#E1F5EE;color:#085041;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Screen Reader User</span>
+        <span style="font-size:11px;color:#888780;background:#F5F4F0;padding:1px 6px;border-radius:4px">Cancel modal</span>
+        <span class="finding-title">Focus moves into dialog</span>
+      </div>
+      <div class="finding-desc">Focus stayed on trigger — SR user cannot interact with modal</div>
+      <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/persona-sr-modal-focus.png" alt="Screenshot: Focus moves into dialog" loading="lazy">
     </div>
-    <div class="finding-desc">Focus stayed on trigger — SR user cannot interact with modal</div>
-    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/persona-sr-modal-focus.png" alt="Screenshot: Focus moves into dialog" loading="lazy">
-  </div>
-  <div class="finding">
-    <div class="finding-header">
-      <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Keyboard User</span>
-      <span style="font-size:11px;color:#888780">Create form</span>
-      <span class="finding-title">Form submittable via keyboard</span>
+    <div class="finding">
+      <div class="finding-header">
+        <span style="background:#E1F5EE;color:#085041;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Keyboard User</span>
+        <span style="font-size:11px;color:#888780;background:#F5F4F0;padding:1px 6px;border-radius:4px">Create form</span>
+        <span class="finding-title">Form submittable via keyboard</span>
+      </div>
+      
+      <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/persona-kb-submit.png" alt="Screenshot: Form submittable via keyboard" loading="lazy">
     </div>
-    
-    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/persona-kb-submit.png" alt="Screenshot: Form submittable via keyboard" loading="lazy">
-  </div>
-  <div class="finding">
-    <div class="finding-header">
-      <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Keyboard User</span>
-      <span style="font-size:11px;color:#888780">Create form</span>
-      <span class="finding-title">Keyboard journey completes</span>
+    <div class="finding">
+      <div class="finding-header">
+        <span style="background:#E1F5EE;color:#085041;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Keyboard User</span>
+        <span style="font-size:11px;color:#888780;background:#F5F4F0;padding:1px 6px;border-radius:4px">Create form</span>
+        <span class="finding-title">Keyboard journey completes</span>
+      </div>
+      
+      
     </div>
-    
-    
-  </div>
-  <div class="finding">
-    <div class="finding-header">
-      <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Mobile User</span>
-      <span style="font-size:11px;color:#888780">Campaigns</span>
-      <span class="finding-title">No overflow at 375px</span>
+    <div class="finding">
+      <div class="finding-header">
+        <span style="background:#E1F5EE;color:#085041;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Mobile User</span>
+        <span style="font-size:11px;color:#888780;background:#F5F4F0;padding:1px 6px;border-radius:4px">Campaigns</span>
+        <span class="finding-title">No overflow at 375px</span>
+      </div>
+      <div class="finding-desc">scrollWidth exceeds 375px</div>
+      <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/persona-mob-overflow--campaigns.png" alt="Screenshot: No overflow at 375px" loading="lazy">
     </div>
-    <div class="finding-desc">scrollWidth exceeds 375px</div>
-    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/persona-mob-overflow--campaigns.png" alt="Screenshot: No overflow at 375px" loading="lazy">
-  </div>
-  <div class="finding">
-    <div class="finding-header">
-      <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Mobile User</span>
-      <span style="font-size:11px;color:#888780">Campaigns</span>
-      <span class="finding-title">Touch targets ≥44px</span>
+    <div class="finding">
+      <div class="finding-header">
+        <span style="background:#E1F5EE;color:#085041;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Mobile User</span>
+        <span style="font-size:11px;color:#888780;background:#F5F4F0;padding:1px 6px;border-radius:4px">Campaigns</span>
+        <span class="finding-title">Touch targets ≥44px</span>
+      </div>
+      <div class="finding-desc">5 small: <button> 35×40px</div>
+      <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/persona-mob-touch--campaigns.png" alt="Screenshot: Touch targets ≥44px" loading="lazy">
     </div>
-    <div class="finding-desc">5 small: <button> 35×40px</div>
-    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/persona-mob-touch--campaigns.png" alt="Screenshot: Touch targets ≥44px" loading="lazy">
-  </div>
-  <div class="finding">
-    <div class="finding-header">
-      <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Mobile User</span>
-      <span style="font-size:11px;color:#888780">Detail</span>
-      <span class="finding-title">No overflow at 375px</span>
+    <div class="finding">
+      <div class="finding-header">
+        <span style="background:#E1F5EE;color:#085041;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Mobile User</span>
+        <span style="font-size:11px;color:#888780;background:#F5F4F0;padding:1px 6px;border-radius:4px">Detail</span>
+        <span class="finding-title">No overflow at 375px</span>
+      </div>
+      <div class="finding-desc">scrollWidth exceeds 375px</div>
+      <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/persona-mob-overflow--campaigns-CMP-1001.png" alt="Screenshot: No overflow at 375px" loading="lazy">
     </div>
-    <div class="finding-desc">scrollWidth exceeds 375px</div>
-    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/persona-mob-overflow--campaigns-CMP-1001.png" alt="Screenshot: No overflow at 375px" loading="lazy">
-  </div>
-  <div class="finding">
-    <div class="finding-header">
-      <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Mobile User</span>
-      <span style="font-size:11px;color:#888780">Detail</span>
-      <span class="finding-title">Touch targets ≥44px</span>
+    <div class="finding">
+      <div class="finding-header">
+        <span style="background:#E1F5EE;color:#085041;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Mobile User</span>
+        <span style="font-size:11px;color:#888780;background:#F5F4F0;padding:1px 6px;border-radius:4px">Detail</span>
+        <span class="finding-title">Touch targets ≥44px</span>
+      </div>
+      <div class="finding-desc">5 small: <button> 35×40px</div>
+      <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/persona-mob-touch--campaigns-CMP-1001.png" alt="Screenshot: Touch targets ≥44px" loading="lazy">
     </div>
-    <div class="finding-desc">5 small: <button> 35×40px</div>
-    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/persona-mob-touch--campaigns-CMP-1001.png" alt="Screenshot: Touch targets ≥44px" loading="lazy">
-  </div>
-  <div class="finding">
-    <div class="finding-header">
-      <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Senior User</span>
-      <span style="font-size:11px;color:#888780">Campaigns</span>
-      <span class="finding-title">Text meets 4.5:1 contrast</span>
+    <div class="finding">
+      <div class="finding-header">
+        <span style="background:#E1F5EE;color:#085041;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Senior User</span>
+        <span style="font-size:11px;color:#888780;background:#F5F4F0;padding:1px 6px;border-radius:4px">Campaigns</span>
+        <span class="finding-title">Text meets 4.5:1 contrast</span>
+      </div>
+      <div class="finding-desc">3 fail — e.g. .status-badge status-badge--sch ratio=2.97</div>
+      <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/persona-sen-contrast--campaigns.png" alt="Screenshot: Text meets 4.5:1 contrast" loading="lazy">
     </div>
-    <div class="finding-desc">3 fail — e.g. .status-badge status-badge--sch ratio=2.97</div>
-    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/persona-sen-contrast--campaigns.png" alt="Screenshot: Text meets 4.5:1 contrast" loading="lazy">
-  </div>
-  <div class="finding">
-    <div class="finding-header">
-      <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Senior User</span>
-      <span style="font-size:11px;color:#888780">Campaigns</span>
-      <span class="finding-title">All images have alt text</span>
+    <div class="finding">
+      <div class="finding-header">
+        <span style="background:#E1F5EE;color:#085041;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Senior User</span>
+        <span style="font-size:11px;color:#888780;background:#F5F4F0;padding:1px 6px;border-radius:4px">Campaigns</span>
+        <span class="finding-title">All images have alt text</span>
+      </div>
+      <div class="finding-desc">1 image(s) missing alt</div>
+      <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/persona-sen-alt--campaigns.png" alt="Screenshot: All images have alt text" loading="lazy">
     </div>
-    <div class="finding-desc">1 image(s) missing alt</div>
-    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/persona-sen-alt--campaigns.png" alt="Screenshot: All images have alt text" loading="lazy">
-  </div>
-  <div class="finding">
-    <div class="finding-header">
-      <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Senior User</span>
-      <span style="font-size:11px;color:#888780">Campaigns</span>
-      <span class="finding-title">Body text ≥14px</span>
+    <div class="finding">
+      <div class="finding-header">
+        <span style="background:#E1F5EE;color:#085041;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Senior User</span>
+        <span style="font-size:11px;color:#888780;background:#F5F4F0;padding:1px 6px;border-radius:4px">Campaigns</span>
+        <span class="finding-title">Body text ≥14px</span>
+      </div>
+      <div class="finding-desc">6 element(s) below 14px</div>
+      
     </div>
-    <div class="finding-desc">6 element(s) below 14px</div>
-    
-  </div>
-  <div class="finding">
-    <div class="finding-header">
-      <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Senior User</span>
-      <span style="font-size:11px;color:#888780">Detail</span>
-      <span class="finding-title">All images have alt text</span>
+    <div class="finding">
+      <div class="finding-header">
+        <span style="background:#E1F5EE;color:#085041;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Senior User</span>
+        <span style="font-size:11px;color:#888780;background:#F5F4F0;padding:1px 6px;border-radius:4px">Detail</span>
+        <span class="finding-title">All images have alt text</span>
+      </div>
+      <div class="finding-desc">1 image(s) missing alt</div>
+      <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/persona-sen-alt--campaigns-CMP-1001.png" alt="Screenshot: All images have alt text" loading="lazy">
     </div>
-    <div class="finding-desc">1 image(s) missing alt</div>
-    <img src="/Users/rmary_ext/uxray-cli/.uxray/screenshots/persona-sen-alt--campaigns-CMP-1001.png" alt="Screenshot: All images have alt text" loading="lazy">
-  </div>
-  <div class="finding">
-    <div class="finding-header">
-      <span style="background:#FAEEDA;color:#633806;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Senior User</span>
-      <span style="font-size:11px;color:#888780">Detail</span>
-      <span class="finding-title">Body text ≥14px</span>
+    <div class="finding">
+      <div class="finding-header">
+        <span style="background:#E1F5EE;color:#085041;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">Senior User</span>
+        <span style="font-size:11px;color:#888780;background:#F5F4F0;padding:1px 6px;border-radius:4px">Detail</span>
+        <span class="finding-title">Body text ≥14px</span>
+      </div>
+      <div class="finding-desc">6 element(s) below 14px</div>
+      
     </div>
-    <div class="finding-desc">6 element(s) below 14px</div>
-    
-  </div>
 </div>
 
 
-<h2>Manual review required (7 WCAG SCs)</h2>
+<h2>Manual review required (7 WCAG criteria)</h2>
 <div class="section">
-  <p style="font-size:13px;color:#5F5E5A;margin:0 0 12px">These criteria cannot be automated — human review required to verify compliance.</p>
-  <div class="manual-item"><strong style="color:#3d3d3a">WCAG 1.2.1</strong> — Check that audio-only content has a transcript and video-only content has a text alternative.</div><div class="manual-item"><strong style="color:#3d3d3a">WCAG 1.2.2</strong> — Check that all pre-recorded video includes accurate closed captions.</div><div class="manual-item"><strong style="color:#3d3d3a">WCAG 1.2.5</strong> — Check that pre-recorded video has an audio description track describing visual-only information.</div><div class="manual-item"><strong style="color:#3d3d3a">WCAG 2.3.1</strong> — Check that no content flashes more than 3 times per second. Requires visual inspection — cannot be automated.</div><div class="manual-item"><strong style="color:#3d3d3a">WCAG 2.2.1</strong> — If any timed session or content exists, verify users can turn off, adjust, or extend the time limit.</div><div class="manual-item"><strong style="color:#3d3d3a">WCAG 3.2.4</strong> — Verify components with the same function are identified consistently across pages (e.g. search icon always labelled 'Search').</div><div class="manual-item"><strong style="color:#3d3d3a">WCAG 3.3.4</strong> — For forms involving legal or financial data, verify submissions are reversible, checkable, or confirmed before final commit.</div>
+  <div style="font-size:13px;color:#5F5E5A;margin-bottom:14px;padding-bottom:12px;border-bottom:0.5px solid #F1EFE8">
+    These criteria cannot be fully automated — human review is required to verify compliance with WCAG 2.1 AA.
+  </div>
+  <div class="manual-item">
+      <span class="wcag-tag">WCAG 1.2.1</span>
+      <span>Check that audio-only content has a transcript and video-only content has a text alternative.</span>
+    </div><div class="manual-item">
+      <span class="wcag-tag">WCAG 1.2.2</span>
+      <span>Check that all pre-recorded video includes accurate closed captions.</span>
+    </div><div class="manual-item">
+      <span class="wcag-tag">WCAG 1.2.5</span>
+      <span>Check that pre-recorded video has an audio description track describing visual-only information.</span>
+    </div><div class="manual-item">
+      <span class="wcag-tag">WCAG 2.3.1</span>
+      <span>Check that no content flashes more than 3 times per second. Requires visual inspection — cannot be automated.</span>
+    </div><div class="manual-item">
+      <span class="wcag-tag">WCAG 2.2.1</span>
+      <span>If any timed session or content exists, verify users can turn off, adjust, or extend the time limit.</span>
+    </div><div class="manual-item">
+      <span class="wcag-tag">WCAG 3.2.4</span>
+      <span>Verify components with the same function are identified consistently across pages.</span>
+    </div><div class="manual-item">
+      <span class="wcag-tag">WCAG 3.3.4</span>
+      <span>For forms involving legal or financial data, verify submissions are reversible, checkable, or confirmed before final commit.</span>
+    </div>
 </div>
 
 <footer>
   UXRay &nbsp;·&nbsp; WCAG 2.1 AA &nbsp;·&nbsp;
   axe-core + keyboard (CDP) + virtual SR + responsiveness + personas &nbsp;·&nbsp;
-  ~78% automated AA coverage
+  ~80% automated AA coverage
 </footer>
 
 </div>

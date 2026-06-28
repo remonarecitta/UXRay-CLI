@@ -1,0 +1,12 @@
+export { loadConfig, validateConfig, resolveOutputPaths, DEFAULTS } from "./config.js";
+export { createAuthSession, openAuthenticatedPage, AuthSession } from "./auth.js";
+export { runAxeChecks }          from "./checks/axe.js";
+export { runKeyboardChecks }     from "./checks/keyboard.js";
+export { runScreenReaderChecks } from "./checks/screenReader.js";
+export { runResponsiveChecks }   from "./checks/responsive.js";
+export { runErrorChecks }        from "./checks/errors.js";
+export { runWcagExtendedChecks } from "./checks/wcag-extended.js";
+export { runPersonas }           from "./personas/scorer.js";
+export { generateHtmlReport }    from "./report/html.js";
+export { runBedrock }            from "./bedrock.js";
+export { runLiveDemo }           from "./live.js";

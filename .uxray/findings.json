@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-06-26T07:37:53.952Z",
+  "generatedAt": "2026-06-27T15:00:06.961Z",
   "target": "http://localhost:3000",
   "appName": "UXRay Demo App",
-  "durationMs": 18801,
-  "auditScore": 0,
+  "durationMs": 18617,
+  "auditScore": 51,
   "personaScore": 37,
-  "totalFindings": 49,
+  "totalFindings": 47,
   "manualGaps": 21,
   "findings": [
     {
@@ -112,7 +112,7 @@
         "WCAG 2.1.2"
       ],
       "title": "Keyboard trap detected",
-      "description": "Focus cycled to <a> \"Winter Welcome Back\" 3+ times — keyboard users cannot exit this element.",
+      "description": "Focus cycled to <a> \"Business Class Upgrade Bonus\" 5+ times — keyboard users cannot exit this element.",
       "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/kb-trap--campaigns.png"
     },
     {
@@ -128,19 +128,7 @@
       "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/kb-skip-nav--campaigns-CMP-1001.png"
     },
     {
-      "id": "kb-trap-4",
-      "route": "/campaigns/CMP-1001",
-      "source": "keyboard",
-      "severity": "critical",
-      "wcag": [
-        "WCAG 2.1.2"
-      ],
-      "title": "Keyboard trap detected",
-      "description": "Focus cycled to <button> \"Activity\" 3+ times — keyboard users cannot exit this element.",
-      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/kb-trap--campaigns-CMP-1001.png"
-    },
-    {
-      "id": "kb-modal-5",
+      "id": "kb-modal-4",
       "route": "/campaigns/CMP-1001",
       "source": "keyboard",
       "severity": "critical",
@@ -152,7 +140,7 @@
       "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/kb-modal-escape--campaigns-CMP-1001.png"
     },
     {
-      "id": "kb-skip-6",
+      "id": "kb-skip-5",
       "route": "/campaigns/new",
       "source": "keyboard",
       "severity": "major",
@@ -164,18 +152,6 @@
       "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/kb-skip-nav--campaigns-new.png"
     },
     {
-      "id": "kb-trap-7",
-      "route": "/campaigns/new",
-      "source": "keyboard",
-      "severity": "critical",
-      "wcag": [
-        "WCAG 2.1.2"
-      ],
-      "title": "Keyboard trap detected",
-      "description": "Focus cycled to <input> \"\" 3+ times — keyboard users cannot exit this element.",
-      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/kb-trap--campaigns-new.png"
-    },
-    {
       "id": "resp-overflow-1",
       "route": "/campaigns",
       "source": "responsive",
@@ -185,7 +161,7 @@
       ],
       "title": "Content overflow at 375px",
       "description": "<body> overflows by 529px. Page has horizontal scroll",
-      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-mobile--campaigns.png"
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-375px--campaigns.png"
     },
     {
       "id": "resp-overflow-2",
@@ -197,7 +173,7 @@
       ],
       "title": "Content overflow at 375px",
       "description": "<table.campaigns-list__table> overflows by 496px. Table overflows with no scroll container",
-      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-mobile--campaigns.png"
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-375px--campaigns.png"
     },
     {
       "id": "resp-touch-3",
@@ -209,7 +185,7 @@
       ],
       "title": "Touch targets below 44px at 375px",
       "description": "20 element(s) too small. e.g. <button .app-layout__theme-toggle> \"Switch to dark mode\" 35×40px (need 44px)",
-      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-mobile--campaigns.png"
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-375px--campaigns.png"
     },
     {
       "id": "resp-orient-4",
@@ -232,7 +208,7 @@
       ],
       "title": "Content overflow at 375px",
       "description": "<body> overflows by 91px. Page has horizontal scroll",
-      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-mobile--campaigns-CMP-1001.png"
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-375px--campaigns-CMP-1001.png"
     },
     {
       "id": "resp-touch-6",
@@ -244,7 +220,7 @@
       ],
       "title": "Touch targets below 44px at 375px",
       "description": "5 element(s) too small. e.g. <button .app-layout__theme-toggle> \"Switch to dark mode\" 35×40px (need 44px)",
-      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-mobile--campaigns-CMP-1001.png"
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-375px--campaigns-CMP-1001.png"
     },
     {
       "id": "resp-overflow-7",
@@ -256,7 +232,7 @@
       ],
       "title": "Content overflow at 375px",
       "description": "<body> overflows by 91px. Page has horizontal scroll",
-      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-mobile--campaigns-new.png"
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-375px--campaigns-new.png"
     },
     {
       "id": "resp-touch-8",
@@ -268,7 +244,7 @@
       ],
       "title": "Touch targets below 44px at 375px",
       "description": "1 element(s) too small. e.g. <button .app-layout__theme-toggle> \"Switch to dark mode\" 35×40px (need 44px)",
-      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-mobile--campaigns-new.png"
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-375px--campaigns-new.png"
     },
     {
       "id": "resp-overflow-9",
@@ -280,7 +256,7 @@
       ],
       "title": "Content overflow at 768px",
       "description": "<body> overflows by 136px. Page has horizontal scroll",
-      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-tablet--campaigns.png"
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-768px--campaigns.png"
     },
     {
       "id": "resp-overflow-10",
@@ -292,7 +268,7 @@
       ],
       "title": "Content overflow at 768px",
       "description": "<table.campaigns-list__table> overflows by 103px. Table overflows with no scroll container",
-      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-tablet--campaigns.png"
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-overflow-768px--campaigns.png"
     },
     {
       "id": "resp-touch-11",
@@ -304,7 +280,7 @@
       ],
       "title": "Touch targets below 44px at 768px",
       "description": "20 element(s) too small. e.g. <a .app-layout__nav-link> \"nav-campaigns\" 106×37px (need 44px)",
-      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-tablet--campaigns.png"
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-768px--campaigns.png"
     },
     {
       "id": "resp-touch-12",
@@ -316,7 +292,7 @@
       ],
       "title": "Touch targets below 44px at 768px",
       "description": "7 element(s) too small. e.g. <a .app-layout__nav-link> \"nav-campaigns\" 106×37px (need 44px)",
-      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-tablet--campaigns-CMP-1001.png"
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-768px--campaigns-CMP-1001.png"
     },
     {
       "id": "resp-touch-13",
@@ -328,7 +304,7 @@
       ],
       "title": "Touch targets below 44px at 768px",
       "description": "3 element(s) too small. e.g. <a .app-layout__nav-link> \"nav-campaigns\" 106×37px (need 44px)",
-      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-tablet--campaigns-new.png"
+      "screenshot": "/Users/rmary_ext/uxray-cli/.uxray/screenshots/resp-touch-768px--campaigns-new.png"
     },
     {
       "id": "resp-dark-14",
@@ -440,7 +416,7 @@
         "WCAG 3.2.4"
       ],
       "title": "[MANUAL] Consistent identification",
-      "description": "Verify components with the same function are identified consistently across pages (e.g. search icon always labelled 'Search')."
+      "description": "Verify components with the same function are identified consistently across pages."
     },
     {
       "id": "ext-manual-error-prevention",
@@ -551,7 +527,7 @@
         "WCAG 3.2.4"
       ],
       "title": "[MANUAL] Consistent identification",
-      "description": "Verify components with the same function are identified consistently across pages (e.g. search icon always labelled 'Search')."
+      "description": "Verify components with the same function are identified consistently across pages."
     },
     {
       "id": "ext-manual-error-prevention",
@@ -803,7 +779,7 @@
         "WCAG 3.2.4"
       ],
       "title": "[MANUAL] Consistent identification",
-      "description": "Verify components with the same function are identified consistently across pages (e.g. search icon always labelled 'Search')."
+      "description": "Verify components with the same function are identified consistently across pages."
     },
     {
       "id": "ext-manual-error-prevention",

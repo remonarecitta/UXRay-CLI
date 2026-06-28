@@ -61,5 +61,5 @@ export default {
     screenshots: "screenshots",
   },
 
-  scoring: { critical: 10, major: 5, minor: 2 },
+  scoring: { critical: 5, major: 2, minor: 1 },
 };
