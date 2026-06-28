@@ -416,6 +416,69 @@ async function liveResponsivePhase(page, config, baseUrl, ms) {
       }
 
       await navigate(page, `${baseUrl}${route.path}`, route, ms * 0.6);
+
+      if (vp.dark) {
+        await page.evaluate(() => {
+          const overlay = document.createElement("div");
+          overlay.id = "uxray-dark-overlay";
+          overlay.style.cssText = [
+            "position:fixed",
+            "top:0",
+            "left:0",
+            "width:100%",
+            "height:100%",
+            "background:rgba(0,0,0,0.55)",
+            "z-index:999990",
+            "display:flex",
+            "align-items:center",
+            "justify-content:center",
+            "font-family:-apple-system,sans-serif",
+            "pointer-events:none",
+            "transition:opacity 0.5s",
+          ].join(";");
+
+          const label = document.createElement("div");
+          label.style.cssText = [
+            "background:#1a1a2e",
+            "color:#fff",
+            "padding:16px 28px",
+            "border-radius:12px",
+            "font-size:18px",
+            "font-weight:600",
+            "letter-spacing:0.5px",
+            "border:1px solid rgba(255,255,255,0.15)",
+            "box-shadow:0 8px 32px rgba(0,0,0,0.4)",
+          ].join(";");
+
+          label.textContent = "🌙 Dark Mode Active";
+          overlay.appendChild(label);
+          document.body.appendChild(overlay);
+
+          setTimeout(() => { overlay.style.opacity = "0"; }, 2500);
+          setTimeout(() => { overlay.remove(); }, 3000);
+        });
+
+        // Try clicking the app's own dark mode toggle if one exists
+        await page.evaluate(() => {
+          const toggleSelectors = [
+            "[data-testid='theme-toggle']",
+            "[aria-label*='dark']",
+            "[aria-label*='Dark']",
+            ".theme-toggle",
+            ".dark-mode-toggle",
+          ];
+          for (const selector of toggleSelectors) {
+            const button = document.querySelector(selector);
+            if (button) {
+              button.click();
+              break;
+            }
+          }
+        }).catch(() => {});
+
+        await page.waitForTimeout(ms * 1.2);
+      }
+
       await banner(page, `📐 ${vp.name} — ${route.name}`, "focus");
       await speak(page, `Testing ${vp.name}`);
       await page.waitForTimeout(ms);
