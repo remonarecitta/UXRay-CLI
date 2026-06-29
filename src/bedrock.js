@@ -1,6 +1,10 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
 import { readFileSync, writeFileSync, existsSync } from "fs";
 import { resolve } from "path";
+import { config as loadDotenv } from "dotenv";
+
+// Load .env file if present (local dev). Never commit .env to source control.
+loadDotenv({ path: resolve(process.cwd(), ".env") });
 
 const MODEL_ID        = "anthropic.claude-3-5-sonnet-20241022-v2:0";
 const MAX_TOKENS      = 1024;
@@ -157,7 +161,28 @@ Required shape:
 }`;
 }
 
+function resolveAwsRegion() {
+  // Support both AWS_REGION (SDK standard) and AWS_DEFAULT_REGION (CLI standard)
+  return process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || "us-west-2";
+}
+
+function validateAwsCredentials() {
+  const missing = [];
+  if (!process.env.AWS_ACCESS_KEY_ID)     missing.push("AWS_ACCESS_KEY_ID");
+  if (!process.env.AWS_SECRET_ACCESS_KEY) missing.push("AWS_SECRET_ACCESS_KEY");
+
+  if (missing.length > 0) {
+    throw new Error(
+      `Missing AWS credentials: ${missing.join(", ")}.\n` +
+      `  Set them in a .env file or export them in your shell before running.\n` +
+      `  See .env.example for the required variables.`
+    );
+  }
+}
+
 async function callBedrock(prompt) {
+  validateAwsCredentials();
+
   const requestBody = JSON.stringify({
     anthropic_version: "bedrock-2023-05-31",
     max_tokens: MAX_TOKENS,
@@ -171,9 +196,9 @@ async function callBedrock(prompt) {
     body:        requestBody,
   });
 
-  const awsRegion    = process.env.AWS_REGION || "us-east-1";
+  const awsRegion     = resolveAwsRegion();
   const bedrockClient = new BedrockRuntimeClient({ region: awsRegion });
-  const response     = await bedrockClient.send(command);
+  const response      = await bedrockClient.send(command);
   const decoded      = JSON.parse(new TextDecoder().decode(response.body));
   const responseText = decoded.content?.[0]?.text ?? "";
   const cleanJson    = responseText.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
@@ -206,7 +231,7 @@ ${afterLines}`;
 export async function runBedrock(findingsOutput, config, paths) {
   const sourceRoot = config.sourceRoot || "src";
   const findings   = findingsOutput.findings ?? [];
-  const awsRegion  = process.env.AWS_REGION || "us-east-1";
+  const awsRegion  = resolveAwsRegion();
   const dryRun     = process.argv.includes("--dry-run");
 
   console.log(`  Model:  ${MODEL_ID}`);
