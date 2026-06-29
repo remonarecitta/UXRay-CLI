@@ -250,29 +250,8 @@ async function main() {
     return;
   }
 
-  const browser = await chromium.launch({ headless: !args.runLive });
-
-  if (args.runLive) {
-    console.log("\nUXRay — live demo\n");
-    const liveFindings = await runLiveDemo(browser, config, outputPaths);
-    await browser.close();
-    const liveScore = calculateAuditScore(liveFindings, config.scoring);
-    const liveOutput = {
-      generatedAt:   new Date().toISOString(),
-      target:        config.baseUrl,
-      appName:       config.appName,
-      durationMs:    0,
-      auditScore:    liveScore,
-      personaScore:  null,
-      totalFindings: liveFindings.length,
-      manualGaps:    0,
-      findings:      liveFindings,
-    };
-    writeFileSync(outputPaths.findings, JSON.stringify(liveOutput, null, 2));
-    await generateHtmlReport(liveOutput, null, outputPaths);
-    printSummary(liveFindings, liveScore, outputPaths, null);
-    return;
-  }
+  // Always run headless for the full audit — live mode adds a visual replay after
+  const browser = await chromium.launch({ headless: true });
   const auditStartTime = Date.now();
   const allFindings = [];
 
@@ -345,10 +324,42 @@ async function main() {
     console.log(`── bedrock ${"─".repeat(46)}`);
     try {
       const { runBedrock } = await import("../src/bedrock.js");
-      await runBedrock(auditOutput, config, outputPaths);
+      const bedrockSuggestions = await runBedrock(auditOutput, config, outputPaths);
+
+      if (bedrockSuggestions?.suggestions?.length) {
+        const fixMap = new Map(
+          bedrockSuggestions.suggestions.map((suggestion) => [suggestion.findingId, suggestion.fix])
+        );
+
+        const enrichedFindings = auditOutput.findings.map((finding) => ({
+          ...finding,
+          fix: fixMap.get(finding.id) || null,
+        }));
+
+        const enrichedOutput = { ...auditOutput, findings: enrichedFindings };
+        writeFileSync(outputPaths.findings, JSON.stringify(enrichedOutput, null, 2));
+        await generateHtmlReport(enrichedOutput, personaReport, outputPaths);
+        console.log(`  Report updated with AI fixes → ${outputPaths.report}`);
+      }
     } catch (error) {
       console.log(`  ⚠ Bedrock failed: ${error.message}`);
     }
+  }
+
+  if (args.runLive) {
+    console.log(`\n── live demo ${"─".repeat(43)}`);
+    console.log("  Opening browser to replay findings visually...\n");
+    try {
+      const liveBrowser = await chromium.launch({ headless: false });
+      await runLiveDemo(liveBrowser, config, outputPaths);
+      await liveBrowser.close();
+    } catch (error) {
+      console.log(`  ⚠ Live demo failed: ${error.message}`);
+    }
+
+    console.log(`\n${"═".repeat(56)}`);
+    console.log(`  Report: ${outputPaths.report}`);
+    console.log(`${"═".repeat(56)}\n`);
   }
 }
 

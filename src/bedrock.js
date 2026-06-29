@@ -318,4 +318,6 @@ export async function runBedrock(findingsOutput, config, paths) {
 
   console.log(`\n  To apply fixes: git apply suggestions.patch`);
   console.log(`  To verify:      npx uxray --no-bedrock\n`);
+
+  return suggestionsOutput;
 }

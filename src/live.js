@@ -24,7 +24,7 @@ const LIVE_HELPERS = `
     if (!text) return;
     window.speechSynthesis?.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.rate = rate || 0.95;
+    u.rate = rate || 0.75;
     window.speechSynthesis?.speak(u);
   };
 
@@ -320,7 +320,7 @@ async function liveScreenReaderPhase(page, config, baseUrl, ms) {
   const findings = [];
   console.log("\n  Phase 3 — screen reader simulation");
 
-  for (const route of config.routes.slice(0, 2)) {
+  for (const route of config.routes) {
     await navigate(page, `${baseUrl}${route.path}`, route, ms);
     await banner(page, `👁 Screen reader walk: ${route.name}`, "announce");
     await speak(page, `Screen reader starting on ${route.name}`);
@@ -405,7 +405,7 @@ async function liveResponsivePhase(page, config, baseUrl, ms) {
     { name: "Dark mode", width: 1280, height: 800, dark: true },
   ];
 
-  for (const route of config.routes.slice(0, 2)) {
+  for (const route of config.routes) {
     for (const vp of viewports) {
       await page.setViewportSize({ width: vp.width, height: vp.height });
 

@@ -1,4 +1,4 @@
-import { writeFileSync } from "fs";
+import { writeFileSync, readFileSync, existsSync } from "fs";
 
 
 /* SCORE HELPERS */
@@ -21,16 +21,20 @@ function getScoreLabel(score) {
   return "Fail";
 }
 
-function toRelativeScreenshotPath(absolutePath) {
-  if (!absolutePath) return null;
+function screenshotToDataUri(screenshotPath) {
+  if (!screenshotPath) return null;
 
-  const normalised = absolutePath.replace(/\\/g, "/");
+  const normalisedPath = screenshotPath.replace(/\\/g, "/");
 
-  if (normalised.includes("/screenshots/")) {
-    return normalised.substring(normalised.indexOf("/screenshots/") + 1);
+  try {
+    if (existsSync(normalisedPath)) {
+      const imageBuffer = readFileSync(normalisedPath);
+      return `data:image/png;base64,${imageBuffer.toString("base64")}`;
+    }
+    return null;
+  } catch {
+    return null;
   }
-
-  return normalised.split("/").slice(-2).join("/");
 }
 
 
@@ -114,20 +118,50 @@ function renderSourceBadge(source) {
   return `<span style="background:${background};color:${foreground};font-size:11px;padding:2px 7px;border-radius:10px">${source}</span>`;
 }
 
+function renderBedrockFix(finding) {
+  if (!finding.fix) return "";
+
+  return `
+    <div class="finding-fix">
+      <div class="finding-fix__label">⚡ AI Fix (Bedrock)</div>
+      ${finding.fix.description ? `<p class="finding-fix__desc">${finding.fix.description}</p>` : ""}
+      ${finding.fix.before && finding.fix.after ? `
+        <div class="finding-fix__diff">
+          <div class="finding-fix__diff-block finding-fix__diff-block--before">
+            <span class="finding-fix__diff-label">Before</span>
+            <pre>${finding.fix.before}</pre>
+          </div>
+          <div class="finding-fix__diff-block finding-fix__diff-block--after">
+            <span class="finding-fix__diff-label">After</span>
+            <pre>${finding.fix.after}</pre>
+          </div>
+        </div>
+      ` : ""}
+    </div>`;
+}
+
 function renderFinding(finding) {
-  const screenshotPath = toRelativeScreenshotPath(finding.screenshot);
+  const screenshotPath = screenshotToDataUri(finding.screenshot);
 
   return `
     <div class="finding">
-      <div class="finding-header">
-        ${renderSeverityBadge(finding.severity)}
-        ${renderSourceBadge(finding.source)}
-        <span class="finding-title">${finding.title}</span>
-        <code style="font-size:11px;color:#aaa89f;background:#F5F4F0;padding:1px 6px;border-radius:4px">${finding.route}</code>
+      <div class="finding-top">
+        <div class="finding-badges">
+          ${renderSeverityBadge(finding.severity)}
+          ${renderSourceBadge(finding.source)}
+        </div>
+        <div class="finding-path">
+          <code>${finding.route}</code>
+        </div>
       </div>
+      <div class="finding-title">${finding.title}</div>
+      ${screenshotPath ? `
+        <div class="finding-screenshot">
+          <img src="${screenshotPath}" alt="Screenshot: ${finding.title}" loading="lazy">
+        </div>` : ""}
       <div class="finding-desc">${finding.description}</div>
+      ${renderBedrockFix(finding)}
       <div class="finding-wcag">${(finding.wcag ?? []).join(" · ")}</div>
-      ${screenshotPath ? `<img src="${screenshotPath}" alt="Screenshot: ${finding.title}" loading="lazy">` : ""}
     </div>`;
 }
 
@@ -255,7 +289,7 @@ function renderPersonaFailures(personaReport) {
   const failureCards = (personaReport.missionTable ?? [])
     .flatMap((mission) =>
       (mission.failures ?? []).map((failure) => {
-        const screenshotPath = toRelativeScreenshotPath(failure.screenshot);
+        const screenshotPath = screenshotToDataUri(failure.screenshot);
 
         return `
           <div class="finding">
@@ -419,46 +453,136 @@ function buildReportStyles() {
     .finding {
       border: 0.5px solid #E8E6DF;
       border-radius: 8px;
-      padding: 10px 14px;
-      margin-bottom: 6px;
+      padding: 14px 16px;
+      margin-bottom: 8px;
     }
 
     .finding:last-child { margin-bottom: 0 }
 
-    .finding-header {
+    .finding-top {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 8px;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
       flex-wrap: wrap;
     }
 
+    .finding-badges {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .finding-path code {
+      font-size: 11px;
+      color: #aaa89f;
+      background: #F5F4F0;
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
     .finding-title {
-      font-size: 13px;
-      font-weight: 500;
-      color: #3d3d3a;
-      flex: 1;
-      min-width: 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a2332;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    .finding-screenshot {
+      margin-bottom: 10px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 0.5px solid #D3D1C7;
+    }
+
+    .finding-screenshot img {
+      max-width: 100%;
+      display: block;
     }
 
     .finding-desc {
       font-size: 12px;
       color: #5F5E5A;
       line-height: 1.5;
+      margin-bottom: 8px;
     }
+
+    .finding-fix {
+      background: #F0FDF4;
+      border: 0.5px solid #86EFAC;
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+    }
+
+    .finding-fix__label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #166534;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 6px;
+    }
+
+    .finding-fix__desc {
+      font-size: 12px;
+      color: #166534;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .finding-fix__diff {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+
+      @media (max-width: 600px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .finding-fix__diff-block {
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .finding-fix__diff-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 3px 8px;
+    }
+
+    .finding-fix__diff-block--before .finding-fix__diff-label {
+      background: #FCEBEB;
+      color: #791F1F;
+    }
+
+    .finding-fix__diff-block--after .finding-fix__diff-label {
+      background: #DCFCE7;
+      color: #166534;
+    }
+
+    .finding-fix__diff-block pre {
+      margin: 0;
+      padding: 8px;
+      font-size: 11px;
+      line-height: 1.4;
+      overflow-x: auto;
+      background: #FAFAF8;
+      color: #3d3d3a;
+    }
+
+    .finding-fix__diff-block--before pre { background: #FFF8F8 }
+    .finding-fix__diff-block--after pre  { background: #F0FDF4 }
 
     .finding-wcag {
       font-size: 11px;
       color: #aaa89f;
-      margin-top: 3px;
-    }
-
-    .finding img {
-      max-width: 100%;
-      border-radius: 6px;
-      border: 0.5px solid #D3D1C7;
-      margin-top: 8px;
-      display: block;
     }
 
     .mission-row {

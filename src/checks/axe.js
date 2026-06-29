@@ -1,10 +1,12 @@
 import AxeBuilder from "@axe-core/playwright";
+import { mkdirSync } from "fs";
+import { join } from "path";
 
 const SEVERITY_MAP = {
   critical: "critical",
-  serious: "critical",
+  serious:  "critical",
   moderate: "major",
-  minor: "minor",
+  minor:    "minor",
 };
 
 function getWcagTags(violation) {
@@ -19,26 +21,67 @@ function getWcagTags(violation) {
   );
 }
 
-function createFinding(violation, route, id) {
+async function takeScreenshot(page, screenshotsDir, name) {
+  try {
+    const filePath = join(screenshotsDir, `axe-${name}.png`);
+    await page.screenshot({ path: filePath, fullPage: false });
+    return filePath;
+  } catch {
+    return null;
+  }
+}
+
+async function highlightViolatingElement(page, selector) {
+  try {
+    await page.evaluate((sel) => {
+      const element = document.querySelector(sel);
+      if (!element) return;
+      element.style.outline = "3px solid #E24B4A";
+      element.style.outlineOffset = "2px";
+      element.scrollIntoView({ behavior: "instant", block: "center" });
+    }, selector);
+    await page.waitForTimeout(200);
+  } catch {
+    // Element may not be queryable — skip highlight
+  }
+}
+
+async function removeHighlights(page) {
+  try {
+    await page.evaluate(() => {
+      document.querySelectorAll("[style*='outline']").forEach((element) => {
+        element.style.outline = "";
+        element.style.outlineOffset = "";
+      });
+    });
+  } catch {
+    // ignore
+  }
+}
+
+function createFinding(violation, route, id, screenshotPath) {
   return {
-    id: `axe-${id}`,
-    route: route.path,
-    source: "axe",
-    severity: SEVERITY_MAP[violation.impact] || "minor",
-    wcag: getWcagTags(violation),
-    title: violation.description,
+    id:          `axe-${id}`,
+    route:       route.path,
+    source:      "axe",
+    severity:    SEVERITY_MAP[violation.impact] || "minor",
+    wcag:        getWcagTags(violation),
+    title:       violation.description,
     description: `[${violation.id}] ${violation.help} — ${violation.nodes.length} node(s). ${violation.helpUrl}`,
+    screenshot:  screenshotPath,
   };
 }
 
-export async function runAxeChecks(browser, config) {
+export async function runAxeChecks(browser, config, paths) {
   const findings = [];
+
+  mkdirSync(paths.screenshots, { recursive: true });
 
   const context = await browser.newContext({
     viewport: { width: 1280, height: 800 },
   });
 
-  const page = await context.newPage();
+  const page    = await context.newPage();
   const baseUrl = process.env.BASE_URL || config.baseUrl;
 
   for (const route of config.routes) {
@@ -59,7 +102,20 @@ export async function runAxeChecks(browser, config) {
       const { violations } = await new AxeBuilder({ page }).analyze();
 
       for (const violation of violations) {
-        findings.push(createFinding(violation, route, findings.length + 1));
+        const findingId     = findings.length + 1;
+        const firstSelector = violation.nodes[0]?.target?.[0];
+
+        // Highlight the violating element and take a screenshot
+        if (firstSelector) {
+          await highlightViolatingElement(page, firstSelector);
+        }
+
+        const screenshotName = `${violation.id}-${route.path.replace(/\//g, "-")}`;
+        const screenshotPath = await takeScreenshot(page, paths.screenshots, screenshotName);
+
+        await removeHighlights(page);
+
+        findings.push(createFinding(violation, route, findingId, screenshotPath));
       }
 
       console.log(`→ ${violations.length} violation(s)`);
