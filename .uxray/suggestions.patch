@@ -1,0 +1,44 @@
+# UXRay suggestions.patch
+# Generated: 2026-06-30T10:10:24.772Z
+# Model: us.anthropic.claude-sonnet-4-6
+# Apply with: git apply suggestions.patch
+# Fixes 3 of 3 findings
+
+--- a/src/components/molecules/AppLayout.tsx
++++ b/src/components/molecules/AppLayout.tsx
+@@ -1,1 +1,1 @@
+- <img src={logoSrc} />
++ <img src={logoSrc} alt="Company logo" />
+--- a/src/components/atoms/IconButton.tsx
++++ b/src/components/atoms/IconButton.tsx
+@@ -1,5 +1,5 @@
+- const IconButton = ({ icon, onClick, ...props }) => (
+-   <button onClick={onClick} {...props}>
+-     {icon}
+-   </button>
+- );
++ const IconButton = ({ icon, onClick, ariaLabel, ...props }) => (
++   <button onClick={onClick} aria-label={ariaLabel} {...props}>
++     {icon}
++   </button>
++ );
+--- a/src/components/molecules/AppLayout.tsx
++++ b/src/components/molecules/AppLayout.tsx
+@@ -1,4 +1,13 @@
+- // Likely pattern causing the trap:
+- useEffect(() => {
+-   campaignRef.current?.focus();
+- });
++ // Only set focus once on mount or in response to a deliberate user action:
++ useEffect(() => {
++   campaignRef.current?.focus();
++ }, []); // empty dependency array ensures single execution
++ 
++ // If this is a modal/dialog, also add an Escape handler:
++ useEffect(() => {
++   const handleKeyDown = (e) => {
++     if (e.key === 'Escape') onClose();
++   };
++   document.addEventListener('keydown', handleKeyDown);
++   return () => document.removeEventListener('keydown', handleKeyDown);
++ }, [onClose]);

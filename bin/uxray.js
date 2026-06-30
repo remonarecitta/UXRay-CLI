@@ -54,6 +54,7 @@ function parseArguments(argv) {
     viewport:    null,
     runPersonas: true,
     runBedrock:  false,
+    bedrockHtml: null,   // path to report.html for HTML-mode bedrock input
     runLive:     false,
     outputDir:   null,
     showHelp:    false,
@@ -76,6 +77,10 @@ function parseArguments(argv) {
       args.runPersonas = false;
     } else if (argument === "--bedrock") {
       args.runBedrock = true;
+    } else if (argument.startsWith("--bedrock=")) {
+      // --bedrock=path/to/report.html  → HTML-mode: parse the HTML directly
+      args.runBedrock  = true;
+      args.bedrockHtml = argument.split("=").slice(1).join("=");
     } else if (argument === "--live") {
       args.runLive = true;
     } else if (argument === "--checks") {
@@ -324,7 +329,10 @@ async function main() {
     console.log(`── bedrock ${"─".repeat(46)}`);
     try {
       const { runBedrock } = await import("../src/bedrock.js");
-      const bedrockSuggestions = await runBedrock(auditOutput, config, outputPaths);
+      // If --bedrock=report.html was passed, parse the HTML directly.
+      // Otherwise fall back to the in-memory audit JSON output.
+      const bedrockInput = args.bedrockHtml ?? auditOutput;
+      const bedrockSuggestions = await runBedrock(bedrockInput, config, outputPaths);
 
       if (bedrockSuggestions?.suggestions?.length) {
         const fixMap = new Map(
