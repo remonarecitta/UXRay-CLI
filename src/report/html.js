@@ -191,53 +191,7 @@ function renderFindingGroup(severity, findings) {
     </div>`;
 }
 
-function renderScoringExplainer(findings, scoringWeights) {
-  const automatedFindings = findings.filter((finding) => finding.source !== "manual-required");
 
-  const uniqueFindings = [
-    ...new Map(
-      automatedFindings.map((finding) => [`${finding.title}|${finding.source}`, finding])
-    ).values(),
-  ];
-
-  const criticalCount = uniqueFindings.filter((finding) => finding.severity === "critical").length;
-  const majorCount    = uniqueFindings.filter((finding) => finding.severity === "major").length;
-  const minorCount    = uniqueFindings.filter((finding) => finding.severity === "minor").length;
-
-  const totalDeductions =
-    criticalCount * (scoringWeights?.critical ?? 10) +
-    majorCount    * (scoringWeights?.major    ?? 5)  +
-    minorCount    * (scoringWeights?.minor    ?? 2);
-
-  const finalScore = Math.max(0, 100 - totalDeductions);
-
-  return `
-    <div style="background:#FAFAF8;border:0.5px solid #E8E6DF;border-radius:8px;padding:14px 16px;margin-top:16px">
-      <div style="font-size:12px;font-weight:500;color:#888780;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">
-        How the score is calculated
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
-        <div style="background:#FCEBEB;border-radius:6px;padding:8px 10px">
-          <div style="font-size:18px;font-weight:600;color:#791F1F">${criticalCount} × 10</div>
-          <div style="font-size:11px;color:#A32D2D;margin-top:2px">unique critical findings</div>
-        </div>
-        <div style="background:#FAEEDA;border-radius:6px;padding:8px 10px">
-          <div style="font-size:18px;font-weight:600;color:#633806">${majorCount} × 5</div>
-          <div style="font-size:11px;color:#854F0B;margin-top:2px">unique major findings</div>
-        </div>
-        <div style="background:#F1EFE8;border-radius:6px;padding:8px 10px">
-          <div style="font-size:18px;font-weight:600;color:#444441">${minorCount} × 2</div>
-          <div style="font-size:11px;color:#5F5E5A;margin-top:2px">unique minor findings</div>
-        </div>
-      </div>
-      <div style="font-size:12px;color:#5F5E5A;border-top:0.5px solid #E8E6DF;padding-top:10px">
-        100 − (${criticalCount}×10 + ${majorCount}×5 + ${minorCount}×2) = 100 − ${totalDeductions} =
-        <strong style="color:${getScoreColor(finalScore)}">${finalScore}</strong>
-        &nbsp;·&nbsp; Duplicates across routes counted once. Weights configurable via
-        <code>scoring: { critical, major, minor }</code> in <code>uxray.config.js</code>
-      </div>
-    </div>`;
-}
 
 function renderMissionTable(personaReport) {
   if (!personaReport) return "";
@@ -684,7 +638,6 @@ export async function generateHtmlReport(findingsOutput, personaReport, paths) {
   );
   const auditScore     = findingsOutput.auditScore ?? 100;
   const personaScore   = personaReport?.overallScore ?? null;
-  const scoringWeights = { critical: 10, major: 5, minor: 2 };
   const durationSeconds = findingsOutput.durationMs
     ? Math.round(findingsOutput.durationMs / 1000)
     : null;
@@ -762,7 +715,7 @@ export async function generateHtmlReport(findingsOutput, personaReport, paths) {
       </div>
     </div>
 
-    ${renderScoringExplainer(findingsOutput.findings ?? [], scoringWeights)}
+
 
     ${renderMissionTable(personaReport)}
 

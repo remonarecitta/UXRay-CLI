@@ -26,7 +26,7 @@ export const DEFAULTS = {
     nonTextContrast: 3.0,
   },
 
-  checks: ["axe", "keyboard", "screenReader", "responsive", "errors", "wcagExtended"],
+  checks: ["axe", "keyboard", "screenReader", "responsive", "errors", "wcagExtended", "ibm", "semantic", "cognitive", "screenReaderReplay", "playwright"],
 
   personas: {
     screenReader: true,
@@ -41,7 +41,6 @@ export const DEFAULTS = {
     dir:         ".uxray",
     findings:    "findings.json",
     report:      "report.html",
-    reportJson:  "report.json",
     patch:       "suggestions.patch",
     suggestions: "suggestions.json",
     screenshots: "screenshots",
@@ -169,7 +168,6 @@ export function resolveOutputPaths(config, cwd = process.cwd()) {
     dir:         normalise(outputDir),
     findings:    normalise(join(outputDir, config.output.findings)),
     report:      normalise(join(outputDir, config.output.report)),
-    reportJson:  normalise(join(outputDir, config.output.reportJson)),
     patch:       normalise(join(outputDir, config.output.patch)),
     suggestions: normalise(join(outputDir, config.output.suggestions)),
     screenshots: normalise(join(outputDir, config.output.screenshots)),

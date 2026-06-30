@@ -1,5 +1,6 @@
 import { join } from "path";
 import { mkdirSync } from "fs";
+import { createAuthenticatedContext, navigateAuthenticated } from "../context.js";
 
 async function navigateToPage(page, url, route) {
   await page.goto(url, { waitUntil: "domcontentloaded", timeout: 15000 });
@@ -240,7 +241,7 @@ async function checkDescriptiveHeadings(page, route) {
   return findings;
 }
 
-async function checkLabelInName(page, route) {
+async function checkLabelInName(page, route, paths) {
   const findings = [];
 
   const issues = await page.evaluate(() => {
@@ -248,21 +249,47 @@ async function checkLabelInName(page, route) {
     const elementsWithAriaLabel =
       "button[aria-label], a[href][aria-label], [role='button'][aria-label], input[aria-label]";
 
+    // Material Icons render icon ligature names as textContent (e.g. "keyboard_double_arrow_left")
+    // These are not human-readable visible text — filter them out to avoid false positives.
+    const MATERIAL_ICON_PATTERN = /^[a-z][a-z0-9_]{4,}$/;
+
+    const isIconText = (text) => {
+      const parts = text.split(/\s+/);
+      // If ALL parts look like icon ligature names, skip this element
+      return parts.every((part) => MATERIAL_ICON_PATTERN.test(part));
+    };
+
+    const stripIconText = (text) => {
+      // Remove parts that look like Material Icon ligature names
+      return text
+        .split(/\s+/)
+        .filter((part) => !MATERIAL_ICON_PATTERN.test(part))
+        .join(" ")
+        .trim();
+    };
+
     document.querySelectorAll(elementsWithAriaLabel).forEach((element) => {
       const rect = element.getBoundingClientRect();
       if (!rect.width || !rect.height) return;
 
-      const ariaLabel = (element.getAttribute("aria-label") || "").trim().toLowerCase();
-      const visibleText = (element.textContent || element.getAttribute("value") || "").trim().toLowerCase();
+      const ariaLabel    = (element.getAttribute("aria-label") || "").trim().toLowerCase();
+      const rawText      = (element.textContent || element.getAttribute("value") || "").trim();
+      const visibleText  = stripIconText(rawText).toLowerCase();
 
+      // Skip if no real visible text remains after stripping icon names
       if (!visibleText || visibleText.length < 2) return;
+
+      // Skip if the aria-label contains the visible text
       if (ariaLabel.includes(visibleText)) return;
 
+      // Skip if the visible text is just numbers or single characters
+      if (/^[\d\s]+$/.test(visibleText)) return;
+
       results.push({
-        tag: element.tagName.toLowerCase(),
-        visibleText: element.textContent?.trim().slice(0, 40) || "",
-        ariaLabel: element.getAttribute("aria-label")?.slice(0, 60) || "",
-        testId: element.getAttribute("data-testid") || "",
+        tag:         element.tagName.toLowerCase(),
+        visibleText: visibleText.slice(0, 40),
+        ariaLabel:   element.getAttribute("aria-label")?.slice(0, 60) || "",
+        testId:      element.getAttribute("data-testid") || "",
       });
     });
 
@@ -270,18 +297,25 @@ async function checkLabelInName(page, route) {
   });
 
   for (const issue of issues) {
+    const screenshotPath = await takeScreenshot(
+      page,
+      paths.screenshots,
+      `label-in-name-${route.path.replace(/\//g, "-")}`
+    );
+
     findings.push({
-      id: `ext-label-in-name-${findings.length + 1}`,
-      route: route.path,
-      source: "wcagExtended",
-      severity: "major",
-      wcag: ["WCAG 2.5.3"],
-      title: "Accessible name does not contain visible label",
+      id:          `ext-label-in-name-${findings.length + 1}`,
+      route:       route.path,
+      source:      "wcagExtended",
+      severity:    "major",
+      wcag:        ["WCAG 2.5.3"],
+      title:       "Accessible name does not contain visible label",
       description:
         `<${issue.tag}${issue.testId ? ` data-testid="${issue.testId}"` : ""}> ` +
         `is visually labelled "${issue.visibleText}" but aria-label is "${issue.ariaLabel}". ` +
         `Voice-control users saying "${issue.visibleText}" cannot activate this control. ` +
-        `Fix: make aria-label start with or contain "${issue.visibleText}".`,
+        `Fix: make aria-label start with or contain the visible label text.`,
+      screenshot:  screenshotPath,
     });
   }
 
@@ -632,6 +666,342 @@ async function checkStatusMessages(page, route) {
   return findings;
 }
 
+async function checkLanguage(page, route) {
+  const findings = [];
+
+  const langInfo = await page.evaluate(() => {
+    const html = document.documentElement;
+    const lang = (html.getAttribute("lang") || "").trim();
+    // BCP 47 primary subtag check: 2–8 letters, optional subtags
+    const bcp47 = /^[a-zA-Z]{2,8}(-[a-zA-Z0-9]{2,8})*$/;
+    return {
+      lang,
+      missing: lang.length === 0,
+      invalid: lang.length > 0 && !bcp47.test(lang),
+    };
+  });
+
+  if (langInfo.missing) {
+    findings.push({
+      id: `ext-lang-missing-${findings.length + 1}`,
+      route: route.path,
+      source: "wcagExtended",
+      severity: "critical",
+      wcag: ["WCAG 3.1.1"],
+      title: "Page has no lang attribute",
+      description:
+        `<html> has no lang attribute. Screen readers default to the OS language, causing incorrect pronunciation for all text. Add lang="en" (or appropriate BCP 47 tag).`,
+    });
+  } else if (langInfo.invalid) {
+    findings.push({
+      id: `ext-lang-invalid-${findings.length + 1}`,
+      route: route.path,
+      source: "wcagExtended",
+      severity: "major",
+      wcag: ["WCAG 3.1.1"],
+      title: "lang attribute value is not valid BCP 47",
+      description:
+        `<html lang="${langInfo.lang}"> is not a valid BCP 47 language tag. Use a tag such as "en", "en-US", or "fr-CA".`,
+    });
+  }
+
+  return findings;
+}
+
+async function checkColorOnly(page, route, paths) {
+  const findings = [];
+
+  const issues = await page.evaluate(() => {
+    const results = [];
+
+    // Links inside paragraph/list/table text — must be distinguishable from body text by more than color
+    document.querySelectorAll("p a[href], li a[href], td a[href]").forEach((link) => {
+      const rect = link.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+
+      const styles = window.getComputedStyle(link);
+      const parentStyles = window.getComputedStyle(link.parentElement);
+
+      const isUnderlined = styles.textDecorationLine.includes("underline");
+      const isBolder = parseInt(styles.fontWeight) >= parseInt(parentStyles.fontWeight) + 200;
+      const hasBorderBottom =
+        styles.borderBottomStyle !== "none" && parseFloat(styles.borderBottomWidth) > 0;
+      const hasOutline =
+        styles.outlineStyle !== "none" && parseFloat(styles.outlineWidth) > 0;
+
+      if (!isUnderlined && !isBolder && !hasBorderBottom && !hasOutline) {
+        results.push({
+          text: link.textContent.trim().slice(0, 50),
+          href: (link.getAttribute("href") || "").slice(0, 50),
+        });
+      }
+    });
+
+    return results.slice(0, 5);
+  });
+
+  for (const issue of issues) {
+    const screenshotPath = await takeScreenshot(
+      page,
+      paths.screenshots,
+      `color-only-${route.path.replace(/\//g, "-")}`
+    );
+
+    findings.push({
+      id: `ext-color-only-${findings.length + 1}`,
+      route: route.path,
+      source: "wcagExtended",
+      severity: "major",
+      wcag: ["WCAG 1.4.1"],
+      title: "Link distinguished from body text by color only",
+      description:
+        `Link "${issue.text}" (href: ${issue.href}) is embedded in body text and has no underline, ` +
+        `bold weight, border, or other non-color visual cue. Users with color vision deficiency cannot identify it as a link.`,
+      screenshot: screenshotPath,
+    });
+  }
+
+  return findings;
+}
+
+async function checkMotionAndTiming(page, route, paths) {
+  const findings = [];
+
+  const issues = await page.evaluate(() => {
+    const problems = [];
+
+    // 2.2.1 — meta refresh with a timeout
+    const metaRefresh = document.querySelector("meta[http-equiv='refresh'], meta[http-equiv='Refresh']");
+    if (metaRefresh) {
+      const content = metaRefresh.getAttribute("content") || "";
+      const seconds = parseInt(content.split(";")[0], 10);
+      if (!isNaN(seconds) && seconds > 0) {
+        problems.push({ type: "meta-refresh", seconds });
+      }
+    }
+
+    // 2.2.2 — deprecated moving/blinking elements
+    document.querySelectorAll("marquee, blink").forEach((el) => {
+      problems.push({ type: "deprecated-motion", tag: el.tagName.toLowerCase() });
+    });
+
+    // 2.2.2 / 1.4.2 — autoplay audio (always a problem) or autoplay video with audio
+    document.querySelectorAll("video[autoplay], audio[autoplay]").forEach((el) => {
+      const isMuted = el.hasAttribute("muted");
+      const tag = el.tagName.toLowerCase();
+      if (tag === "audio" || !isMuted) {
+        problems.push({
+          type: "autoplay",
+          tag,
+          muted: isMuted,
+          src: (el.getAttribute("src") || el.querySelector("source")?.getAttribute("src") || "").slice(0, 60),
+        });
+      }
+    });
+
+    // 2.2.2 — infinite CSS animations without prefers-reduced-motion safeguard
+    const infiniteAnimated = [];
+    document.querySelectorAll("*").forEach((el) => {
+      const styles = window.getComputedStyle(el);
+      if (
+        styles.animationName !== "none" &&
+        styles.animationIterationCount === "infinite" &&
+        styles.animationPlayState === "running"
+      ) {
+        const rect = el.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+          infiniteAnimated.push({
+            tag: el.tagName.toLowerCase(),
+            cls: (el.className || "").toString().slice(0, 40),
+            animation: styles.animationName,
+          });
+        }
+      }
+    });
+    if (infiniteAnimated.length > 0) {
+      problems.push({ type: "infinite-animation", count: infiniteAnimated.length, examples: infiniteAnimated.slice(0, 3) });
+    }
+
+    return problems;
+  });
+
+  for (const issue of issues) {
+    if (issue.type === "meta-refresh") {
+      findings.push({
+        id: `ext-timing-refresh-${findings.length + 1}`,
+        route: route.path,
+        source: "wcagExtended",
+        severity: "critical",
+        wcag: ["WCAG 2.2.1"],
+        title: "Page auto-refreshes with a time limit",
+        description:
+          `<meta http-equiv="refresh" content="${issue.seconds}"> causes the page to reload after ${issue.seconds}s, ` +
+          `removing control from users. Remove the meta refresh or provide a mechanism to extend or disable it.`,
+      });
+    } else if (issue.type === "deprecated-motion") {
+      findings.push({
+        id: `ext-timing-motion-${findings.length + 1}`,
+        route: route.path,
+        source: "wcagExtended",
+        severity: "critical",
+        wcag: ["WCAG 2.2.2"],
+        title: `Deprecated <${issue.tag}> element causes uncontrollable motion`,
+        description:
+          `<${issue.tag}> is deprecated and violates 2.2.2 — users cannot pause, stop, or hide moving content. Replace with CSS animation controlled by prefers-reduced-motion.`,
+      });
+    } else if (issue.type === "autoplay") {
+      const screenshotPath = await takeScreenshot(
+        page,
+        paths.screenshots,
+        `autoplay-${route.path.replace(/\//g, "-")}`
+      );
+      findings.push({
+        id: `ext-timing-autoplay-${findings.length + 1}`,
+        route: route.path,
+        source: "wcagExtended",
+        severity: "critical",
+        wcag: issue.tag === "audio" ? ["WCAG 1.4.2"] : ["WCAG 2.2.2"],
+        title: `<${issue.tag}> plays automatically with audio`,
+        description:
+          `<${issue.tag}${issue.src ? ` src="${issue.src}"` : ""}> autoplays${issue.tag === "audio" || !issue.muted ? " with audio" : ""}. ` +
+          (issue.tag === "audio"
+            ? "WCAG 1.4.2 requires audio that plays automatically for more than 3s to be pauseable or have volume control."
+            : "WCAG 2.2.2 requires moving media to be pauseable."),
+        screenshot: screenshotPath,
+      });
+    } else if (issue.type === "infinite-animation") {
+      findings.push({
+        id: `ext-timing-anim-${findings.length + 1}`,
+        route: route.path,
+        source: "wcagExtended",
+        severity: "minor",
+        wcag: ["WCAG 2.2.2"],
+        title: "Infinite CSS animation not gated by prefers-reduced-motion",
+        description:
+          `${issue.count} element(s) run infinite CSS animations without a @media (prefers-reduced-motion) rule to pause or stop them. ` +
+          `Example: <${issue.examples[0].tag} class="${issue.examples[0].cls}"> animation="${issue.examples[0].animation}". ` +
+          `Add: @media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; } }`,
+      });
+    }
+  }
+
+  return findings;
+}
+
+async function checkMediaAlternatives(page, route, paths) {
+  const findings = [];
+
+  const mediaIssues = await page.evaluate(() => {
+    const issues = [];
+
+    document.querySelectorAll("video").forEach((video) => {
+      const rect = video.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+
+      const hasCaptionTrack = Array.from(video.querySelectorAll("track")).some(
+        (t) => t.getAttribute("kind") === "captions" || t.getAttribute("kind") === "subtitles"
+      );
+      const src = (video.getAttribute("src") || video.querySelector("source")?.getAttribute("src") || "").slice(0, 60);
+
+      if (!hasCaptionTrack) {
+        issues.push({ type: "video-no-captions", src });
+      }
+    });
+
+    document.querySelectorAll("audio").forEach((audio) => {
+      const rect = audio.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+
+      // Heuristic: look for a transcript link in the nearest section/article/div ancestor
+      const ancestor = audio.closest("section, article, div") || audio.parentElement;
+      const nearbyText = ancestor?.textContent?.toLowerCase() || "";
+      const hasTranscriptLink = /transcript|text alternative|read the|full text/i.test(nearbyText);
+
+      const src = (audio.getAttribute("src") || audio.querySelector("source")?.getAttribute("src") || "").slice(0, 60);
+      if (!hasTranscriptLink) {
+        issues.push({ type: "audio-no-transcript", src });
+      }
+    });
+
+    return issues;
+  });
+
+  for (const issue of mediaIssues) {
+    const screenshotPath = await takeScreenshot(
+      page,
+      paths.screenshots,
+      `media-alt-${route.path.replace(/\//g, "-")}`
+    );
+
+    if (issue.type === "video-no-captions") {
+      findings.push({
+        id: `ext-media-captions-${findings.length + 1}`,
+        route: route.path,
+        source: "wcagExtended",
+        severity: "critical",
+        wcag: ["WCAG 1.2.2"],
+        title: "Video element has no captions track",
+        description:
+          `<video${issue.src ? ` src="${issue.src}"` : ""}> has no <track kind="captions"> or <track kind="subtitles">. ` +
+          `Deaf and hard-of-hearing users cannot access spoken content. Add a WebVTT captions file via <track kind="captions" src="...">.`,
+        screenshot: screenshotPath,
+      });
+    } else if (issue.type === "audio-no-transcript") {
+      findings.push({
+        id: `ext-media-transcript-${findings.length + 1}`,
+        route: route.path,
+        source: "wcagExtended",
+        severity: "critical",
+        wcag: ["WCAG 1.2.1"],
+        title: "Audio element has no adjacent transcript",
+        description:
+          `<audio${issue.src ? ` src="${issue.src}"` : ""}> has no nearby transcript link. ` +
+          `WCAG 1.2.1 requires audio-only content to have a text transcript. ` +
+          `Add a visible transcript link adjacent to the audio element.`,
+        screenshot: screenshotPath,
+      });
+    }
+  }
+
+  return findings;
+}
+
+async function checkPointerGestures(page, route) {
+  const findings = [];
+
+  const draggables = await page.evaluate(() => {
+    return Array.from(document.querySelectorAll("[draggable='true']"))
+      .filter((el) => {
+        const rect = el.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+      })
+      .map((el) => ({
+        tag: el.tagName.toLowerCase(),
+        role: el.getAttribute("role") || "",
+        testId: el.getAttribute("data-testid") || "",
+        text: (el.textContent || el.getAttribute("aria-label") || "").trim().slice(0, 50),
+      }))
+      .slice(0, 10);
+  });
+
+  for (const el of draggables) {
+    findings.push({
+      id: `ext-pointer-gesture-${findings.length + 1}`,
+      route: route.path,
+      source: "wcagExtended",
+      severity: "major",
+      wcag: ["WCAG 2.5.1"],
+      title: "Draggable element — verify single-pointer alternative",
+      description:
+        `<${el.tag}${el.testId ? ` data-testid="${el.testId}"` : ""}${el.role ? ` role="${el.role}"` : ""}> "${el.text}" ` +
+        `is draggable. WCAG 2.5.1 requires all drag operations to also be completable with a single pointer without a path-based gesture ` +
+        `(e.g. click-to-pick + click-to-drop, or reorder buttons). Manually verify the keyboard/single-click alternative is present.`,
+    });
+  }
+
+  return findings;
+}
+
 export function getExtendedManualGaps(routePath) {
   return [
     {
@@ -700,16 +1070,14 @@ export function getExtendedManualGaps(routePath) {
   ];
 }
 
-export async function runWcagExtendedChecks(browser, config, paths) {
+export async function runWcagExtendedChecks(browser, config, paths, authSession = null, authStorage = null) {
   const findings = [];
   const baseUrl = process.env.BASE_URL || config.baseUrl;
   const minimumNonTextContrast = config.thresholds?.nonTextContrast || 3.0;
 
   mkdirSync(paths.screenshots, { recursive: true });
 
-  const context = await browser.newContext({
-    viewport: { width: 1280, height: 800 },
-  });
+  const context = await createAuthenticatedContext(browser, config);
 
   const page = await context.newPage();
 
@@ -720,26 +1088,47 @@ export async function runWcagExtendedChecks(browser, config, paths) {
     let issueCount = 0;
 
     try {
-      await navigateToPage(page, url, route);
+      // Passive checks — only read the DOM, safe to run after a single navigation
+      await navigateAuthenticated(page, url, config, route.waitFor);
 
-      const checkResults = await Promise.allSettled([
-        checkNonTextContrast(page, route, paths, minimumNonTextContrast),
-        checkPageTitle(page, route),
-        checkDescriptiveHeadings(page, route),
-        checkLinkPurpose(page, route),
-        checkLabelInName(page, route),
-        checkLabelsOrInstructions(page, route),
-        checkOnFocus(page, route, paths),
-        checkOnInput(page, route, paths),
-        checkErrorSuggestions(page, route, paths),
-        checkStatusMessages(page, route),
-      ]);
+      const passiveChecks = [
+        () => checkNonTextContrast(page, route, paths, minimumNonTextContrast),
+        () => checkPageTitle(page, route),
+        () => checkDescriptiveHeadings(page, route),
+        () => checkLinkPurpose(page, route),
+        () => checkLabelInName(page, route, paths),
+        () => checkLabelsOrInstructions(page, route),
+        () => checkStatusMessages(page, route),
+        () => checkLanguage(page, route),
+        () => checkColorOnly(page, route, paths),
+        () => checkMotionAndTiming(page, route, paths),
+        () => checkMediaAlternatives(page, route, paths),
+        () => checkPointerGestures(page, route),
+      ];
 
-      for (const result of checkResults) {
-        if (result.status === "fulfilled") {
-          findings.push(...result.value);
-          issueCount += result.value.length;
-        }
+      for (const check of passiveChecks) {
+        try {
+          const results = await check();
+          findings.push(...results);
+          issueCount += results.length;
+        } catch { /* skip individual check failure */ }
+      }
+
+      // Active checks — interact with the page (focus, input changes, form submit).
+      // Re-navigate before each one so they start from a clean, authenticated state.
+      const activeChecks = [
+        () => checkOnFocus(page, route, paths),
+        () => checkOnInput(page, route, paths),
+        () => checkErrorSuggestions(page, route, paths),
+      ];
+
+      for (const check of activeChecks) {
+        try {
+          await navigateAuthenticated(page, url, config, route.waitFor);
+          const results = await check();
+          findings.push(...results);
+          issueCount += results.length;
+        } catch { /* skip individual check failure */ }
       }
 
       const manualGaps = getExtendedManualGaps(route.path);

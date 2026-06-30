@@ -125,10 +125,22 @@ export async function createAuthSession(browser, config, viewport = { width: 128
     throw new Error(`Login failed: ${error.message}`);
   }
 
+  // Capture sessionStorage — not included in storageState()
+  // Campaign-UI stores the auth token in sessionStorage["token"]
+  const sessionStorageData = await page.evaluate(() => {
+    const data = {};
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i);
+      data[key] = sessionStorage.getItem(key);
+    }
+    return data;
+  });
+
   await page.close();
 
   const session = new AuthSession(context, config);
-  session._authed = true;
+  session._authed          = true;
+  session._sessionStorage  = sessionStorageData;
 
   if (cookiePath) await session.save();
 

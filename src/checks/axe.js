@@ -1,6 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync } from "fs";
 import { join } from "path";
+import { createAuthenticatedContext, navigateAuthenticated } from "../context.js";
 
 const SEVERITY_MAP = {
   critical: "critical",
@@ -72,14 +73,12 @@ function createFinding(violation, route, id, screenshotPath) {
   };
 }
 
-export async function runAxeChecks(browser, config, paths) {
+export async function runAxeChecks(browser, config, paths, authSession = null, authStorage = null) {
   const findings = [];
 
   mkdirSync(paths.screenshots, { recursive: true });
 
-  const context = await browser.newContext({
-    viewport: { width: 1280, height: 800 },
-  });
+  const context = await createAuthenticatedContext(browser, config);
 
   const page    = await context.newPage();
   const baseUrl = process.env.BASE_URL || config.baseUrl;
@@ -89,15 +88,7 @@ export async function runAxeChecks(browser, config, paths) {
     process.stdout.write(`   axe  ${route.name.padEnd(16)}`);
 
     try {
-      await page.goto(url, { waitUntil: "domcontentloaded", timeout: 15000 });
-
-      if (route.waitFor) {
-        await page.locator(route.waitFor)
-          .waitFor({ state: "visible", timeout: 5000 })
-          .catch(() => {});
-      }
-
-      await page.waitForTimeout(400);
+      await navigateAuthenticated(page, url, config, route.waitFor);
 
       const { violations } = await new AxeBuilder({ page }).analyze();
 
