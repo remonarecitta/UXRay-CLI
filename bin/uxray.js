@@ -28,6 +28,10 @@ import { runScreenReaderChecks } from "../src/checks/screenReader.js";
 import { runResponsiveChecks } from "../src/checks/responsive.js";
 import { runErrorChecks } from "../src/checks/errors.js";
 import { runWcagExtendedChecks } from "../src/checks/wcag-extended.js";
+import { runIBMChecks } from "../src/checks/ibm.js";
+import { runSemanticChecks } from "../src/checks/semantic.js";
+import { runCognitiveChecks } from "../src/checks/cognitive.js";
+import { runScreenReaderReplayChecks } from "../src/checks/screenReaderReplay.js";
 import { runPersonas } from "../src/personas/scorer.js";
 import { generateHtmlReport } from "../src/report/html.js";
 import { runLiveDemo } from "../src/live.js";
@@ -38,12 +42,16 @@ const currentDirectory = dirname(fileURLToPath(import.meta.url));
 const normalisePath = (p) => p?.replace(/\\/g, "/") ?? p;
 
 const CHECK_MODULES = {
-  axe:          runAxeChecks,
-  keyboard:     runKeyboardChecks,
-  screenReader: runScreenReaderChecks,
-  responsive:   runResponsiveChecks,
-  errors:       runErrorChecks,
-  wcagExtended: runWcagExtendedChecks,
+  axe:                runAxeChecks,
+  keyboard:           runKeyboardChecks,
+  screenReader:       runScreenReaderChecks,
+  responsive:         runResponsiveChecks,
+  errors:             runErrorChecks,
+  wcagExtended:       runWcagExtendedChecks,
+  ibm:                runIBMChecks,
+  semantic:           runSemanticChecks,
+  cognitive:          runCognitiveChecks,
+  screenReaderReplay: runScreenReaderReplayChecks,
 };
 
 function parseArguments(argv) {
@@ -55,6 +63,7 @@ function parseArguments(argv) {
     runPersonas:    true,
     runBedrock:     false,
     checkBedrock:   false,
+    runPlaywright:  true,
     runLive:        false,
     outputDir:   null,
     showHelp:    false,
@@ -75,6 +84,8 @@ function parseArguments(argv) {
       args.dryRun = true;
     } else if (argument === "--no-personas") {
       args.runPersonas = false;
+    } else if (argument === "--no-playwright") {
+      args.runPlaywright = false;
     } else if (argument === "--bedrock") {
       args.runBedrock = true;
     } else if (argument === "--bedrock-check") {
@@ -115,10 +126,11 @@ Commands:
 
 Options:
   --checks <list>     Comma-separated checks to run (default: all)
-                      Available: axe, keyboard, screenReader, responsive, errors, wcagExtended
+                      Available: axe, keyboard, screenReader, responsive, errors, wcagExtended, ibm, semantic, cognitive, screenReaderReplay, playwright
   --route <path>      Audit a single route only (e.g. --route /campaigns)
   --viewport <name>   Run on one viewport only: mobile, tablet, desktop, dark
   --no-personas       Skip persona health scoring
+  --no-playwright     Skip Playwright responsive test suite
   --live              Open browser visibly, tab through pages, speak announcements
   --bedrock           Run AI fix suggestions after audit (requires AWS credentials)
   --bedrock-check     Test AWS credentials and Bedrock model reachability, then exit
@@ -338,6 +350,38 @@ async function main() {
   await generateHtmlReport(auditOutput, personaReport, outputPaths);
 
   printSummary(allFindings, auditScore, outputPaths, personaReport?.overallScore || null);
+
+  // ── Playwright responsive suite ──────────────────────────────────────────
+  if (args.runPlaywright && config.checks.includes("playwright")) {
+    console.log(`\n── playwright (responsive) ${"─".repeat(30)}`);
+    try {
+      const { spawnSync } = await import("child_process");
+      const playwrightConfig = join(currentDirectory, "../tests/playwright.config.ts");
+      const specFile         = join(currentDirectory, "../tests/integration/responsive.spec.ts");
+
+      const result = spawnSync(
+        "npx",
+        ["playwright", "test", "--config", playwrightConfig, specFile],
+        {
+          stdio: "inherit",
+          env:   { ...process.env, BASE_URL: process.env.BASE_URL || config.baseUrl },
+          cwd:   process.cwd(),
+        }
+      );
+
+      if (result.status === 0) {
+        console.log("  ✓ All Playwright responsive tests passed");
+      } else if (result.status !== null) {
+        console.log("  ✗ Some tests failed — open .playwright-report/index.html for details");
+      } else if (result.error) {
+        console.log(`  ⚠ Could not run Playwright: ${result.error.message}`);
+        console.log("    Install it with: npm install --save-dev @playwright/test");
+      }
+    } catch (error) {
+      console.log(`  ⚠ Playwright phase error: ${error.message}`);
+    }
+  }
+  // ─────────────────────────────────────────────────────────────────────────
 
   if (args.runBedrock) {
     console.log(`── bedrock ${"─".repeat(46)}`);

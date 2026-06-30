@@ -1,8 +1,13 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
+import { STSClient, GetCallerIdentityCommand } from "@aws-sdk/client-sts";
 import { readFileSync, writeFileSync, existsSync } from "fs";
 import { resolve } from "path";
+import { config as loadDotenv } from "dotenv";
 
-const MODEL_ID        = "anthropic.claude-3-5-sonnet-20241022-v2:0";
+// Load .env file if present (local dev). Never commit .env to source control.
+loadDotenv({ path: resolve(process.cwd(), ".env") });
+
+const MODEL_ID        = process.env.BEDROCK_MODEL_ID ?? "us.anthropic.claude-sonnet-4-6";
 const MAX_TOKENS      = 1024;
 const MAX_SOURCE_CHARS = 2000;
 
@@ -162,20 +167,6 @@ function resolveAwsRegion() {
   return process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || "us-west-2";
 }
 
-/**
- * Build an explicit credentials object from environment variables.
- * Always passing credentials explicitly (rather than relying on the SDK's
- * default chain) ensures AWS_SESSION_TOKEN is forwarded correctly for
- * STS / assumed-role / SSO sessions.
- */
-function resolveCredentials() {
-  return {
-    accessKeyId:     process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    ...(process.env.AWS_SESSION_TOKEN && { sessionToken: process.env.AWS_SESSION_TOKEN }),
-  };
-}
-
 function validateAwsCredentials() {
   const missing = [];
   if (!process.env.AWS_ACCESS_KEY_ID)     missing.push("AWS_ACCESS_KEY_ID");
@@ -190,12 +181,21 @@ function validateAwsCredentials() {
   }
 }
 
-function buildBedrockClient() {
-  return new BedrockRuntimeClient({
-    region:         resolveAwsRegion(),
-    credentials:    resolveCredentials(),
-    requestHandler: { requestTimeout: 15_000 },
-  });
+async function verifyAwsIdentity(region) {
+  try {
+    const sts      = new STSClient({ region });
+    const identity = await sts.send(new GetCallerIdentityCommand({}));
+    console.log(`  Identity: ${identity.Arn}`);
+    return true;
+  } catch (error) {
+    if (error.name === "ExpiredTokenException") {
+      throw new Error(
+        "AWS session token has expired. Refresh your credentials in .env and re-run.\n" +
+        "  Update AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_SESSION_TOKEN."
+      );
+    }
+    throw new Error(`STS identity check failed (${error.name}): ${error.message}`);
+  }
 }
 
 async function callBedrock(prompt) {
@@ -214,8 +214,9 @@ async function callBedrock(prompt) {
     body:        requestBody,
   });
 
-  const client   = buildBedrockClient();
-  const response = await client.send(command);
+  const awsRegion     = resolveAwsRegion();
+  const bedrockClient = new BedrockRuntimeClient({ region: awsRegion });
+  const response      = await bedrockClient.send(command);
   const decoded      = JSON.parse(new TextDecoder().decode(response.body));
   const responseText = decoded.content?.[0]?.text ?? "";
   const cleanJson    = responseText.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
@@ -226,84 +227,6 @@ async function callBedrock(prompt) {
     console.error(`  ⚠ JSON parse failed for response: ${cleanJson.slice(0, 120)}...`);
     return null;
   }
-}
-
-/**
- * Sends a minimal prompt to Claude to verify the model is reachable.
- * Retries once on transient network errors before giving up.
- * Prints a clear pass/fail summary and returns a result object.
- */
-export async function checkBedrockConnection() {
-  const region   = resolveAwsRegion();
-  const hasToken = !!process.env.AWS_SESSION_TOKEN;
-
-  console.log(`\n── Bedrock connection check ${'─'.repeat(28)}`);
-  console.log(`  Model:         ${MODEL_ID}`);
-  console.log(`  Region:        ${region}`);
-  console.log(`  Key ID:        ${(process.env.AWS_ACCESS_KEY_ID ?? '(not set)').slice(0, 12)}...`);
-  console.log(`  Session token: ${hasToken ? 'present' : 'not set (permanent credentials)'}`);
-
-  try {
-    validateAwsCredentials();
-  } catch (error) {
-    console.log(`\n  ✗ ${error.message.split('\n')[0]}\n`);
-    return { ok: false, error: error.message };
-  }
-
-  const probe = JSON.stringify({
-    anthropic_version: "bedrock-2023-05-31",
-    max_tokens: 16,
-    messages: [{ role: "user", content: "Reply with the single word: connected" }],
-  });
-
-  const invokeProbe = () => buildBedrockClient().send(new InvokeModelCommand({
-    modelId:     MODEL_ID,
-    contentType: "application/json",
-    accept:      "application/json",
-    body:        probe,
-  }));
-
-  let lastError;
-
-  for (let attempt = 1; attempt <= 2; attempt++) {
-    if (attempt > 1) {
-      process.stdout.write(`  Retrying (attempt ${attempt})...`);
-      await new Promise((r) => setTimeout(r, 2000));
-    }
-
-    try {
-      const response = await invokeProbe();
-      const decoded  = JSON.parse(new TextDecoder().decode(response.body));
-      const text     = decoded.content?.[0]?.text?.trim() ?? "";
-
-      if (attempt > 1) console.log();
-      console.log(`\n  ✓ Model responded: "${text}"`);
-      console.log(`  Connection OK — ready for uxray --bedrock\n`);
-      return { ok: true, response: text, model: MODEL_ID, region };
-    } catch (error) {
-      lastError = error;
-    }
-  }
-
-  const msg = lastError?.message ?? String(lastError);
-  console.log(`\n  ✗ Connection failed: ${msg.split('\n')[0]}`);
-
-  if (msg.includes("ExpiredToken") || msg.includes("InvalidClientTokenId")) {
-    console.log(`  → Credentials have expired — re-export your AWS session variables or refresh .env.`);
-  } else if (msg.includes("AccessDenied")) {
-    console.log(`  → IAM principal lacks bedrock:InvokeModel permission on ${MODEL_ID}.`);
-  } else if (msg.includes("ResourceNotFoundException")) {
-    console.log(`  → Model not available in region "${region}". Try AWS_REGION=us-east-1.`);
-  } else if (msg.includes("ECONNRESET") || msg.includes("canceled")) {
-    console.log(`  → Network reset — possible causes:`);
-    console.log(`     • Session token in .env is expired (re-export credentials)`);
-    console.log(`     • Model "${MODEL_ID}" not enabled in your account/region`);
-    console.log(`       Enable it at: https://console.aws.amazon.com/bedrock/home#/modelaccess`);
-    console.log(`     • Corporate firewall or VPN blocking bedrock-runtime.${region}.amazonaws.com`);
-  }
-
-  console.log();
-  return { ok: false, error: msg };
 }
 
 function buildPatchHunk(suggestion) {
@@ -331,6 +254,10 @@ export async function runBedrock(findingsOutput, config, paths) {
 
   console.log(`  Model:  ${MODEL_ID}`);
   console.log(`  Region: ${awsRegion}`);
+
+  // Validate env vars present, then verify identity via STS before any Bedrock calls.
+  validateAwsCredentials();
+  await verifyAwsIdentity(awsRegion);
 
   const uniqueFindings = deduplicateFindings(findings, sourceRoot);
   console.log(`  ${findings.length} findings → ${uniqueFindings.length} unique root causes`);

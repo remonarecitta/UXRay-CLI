@@ -26,7 +26,7 @@ export const DEFAULTS = {
     nonTextContrast: 3.0,
   },
 
-  checks: ["axe", "keyboard", "screenReader", "responsive", "errors", "wcagExtended"],
+  checks: ["axe", "keyboard", "screenReader", "responsive", "errors", "wcagExtended", "ibm", "semantic", "cognitive", "screenReaderReplay", "playwright"],
 
   personas: {
     screenReader: true,

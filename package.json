@@ -7,20 +7,26 @@
     "uxray": "./bin/uxray.js"
   },
   "exports": {
-    ".":        "./src/index.js",
+    ".": "./src/index.js",
     "./config": "./src/config.js"
   },
   "scripts": {
     "test": "node --test tests/*.test.js",
     "test:bedrock": "node --env-file=.env bin/uxray.js --bedrock-check",
-    "test:connection": "node --env-file=.env bin/uxray.js --bedrock-check"
+    "test:connection": "node --env-file=.env bin/uxray.js --bedrock-check",
+    "test:responsive": "playwright test --config tests/playwright.config.ts tests/integration/responsive.spec.ts",
+    "test:responsive:update": "playwright test --config tests/playwright.config.ts tests/integration/responsive.spec.ts --update-snapshots"
   },
   "engines": {
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@axe-core/playwright": "^4.9.1",
     "@aws-sdk/client-bedrock-runtime": "^3.600.0",
+    "@aws-sdk/client-sts": "^3.1076.0",
+    "@axe-core/playwright": "^4.9.1",
     "playwright": "^1.44.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1"
   }
 }

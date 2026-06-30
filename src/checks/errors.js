@@ -28,15 +28,7 @@ export async function runErrorChecks(browser, config, paths, authSession = null,
     let issueCount = 0;
 
     try {
-      await page.goto(url, { waitUntil: "domcontentloaded", timeout: 15000 });
-
-      if (route.waitFor) {
-        await page.locator(route.waitFor)
-          .waitFor({ state: "visible", timeout: 5000 })
-          .catch(() => {});
-      }
-
-      await page.waitForTimeout(400);
+      await navigateAuthenticated(page, url, config, route.waitFor);
 
       const pageHasForm = await page.evaluate(() => !!document.querySelector("form"));
 

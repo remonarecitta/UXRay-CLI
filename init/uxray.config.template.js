@@ -41,7 +41,10 @@ export default {
     maxTabs:      60,
   },
 
-  checks: ["axe", "keyboard", "screenReader", "responsive", "errors"],
+  checks: ["axe", "keyboard", "screenReader", "responsive", "errors", "wcagExtended", "ibm", "semantic", "cognitive", "screenReaderReplay", "playwright"],
+  // IBM check requires:        npm install @ibm/equal-access-accessibility-checker
+  // Playwright check requires: npm install --save-dev @playwright/test
+  // Both skip gracefully if not installed.
 
   personas: {
     screenReader: { enabled: true },

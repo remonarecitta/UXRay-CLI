@@ -321,6 +321,135 @@ async function checkOrientation(page, viewport, route, findingCount) {
   return findings;
 }
 
+
+async function checkViewportMeta(page, route, findingCount) {
+  const findings = [];
+
+  const hasViewportMeta = await page.evaluate(() => {
+    const meta = document.querySelector("meta[name='viewport']");
+    if (!meta) return { present: false };
+    const content = meta.getAttribute("content") || "";
+    return {
+      present:        true,
+      hasWidth:       content.includes("width=device-width"),
+      hasInitScale:   content.includes("initial-scale=1"),
+      blocksZoom:     content.includes("user-scalable=no") || content.includes("maximum-scale=1"),
+      content,
+    };
+  });
+
+  if (!hasViewportMeta.present) {
+    findings.push({
+      id:          `resp-viewport-${findingCount + findings.length + 1}`,
+      route:       route.path,
+      source:      "responsive",
+      severity:    "major",
+      wcag:        ["Best Practice"],
+      title:       "Missing viewport meta tag",
+      description: "No <meta name=\"viewport\"> tag found. Mobile browsers will render the page at desktop width and scale it down, making text unreadable without zooming.",
+    });
+  } else if (hasViewportMeta.blocksZoom) {
+    findings.push({
+      id:          `resp-viewport-zoom-${findingCount + findings.length + 1}`,
+      route:       route.path,
+      source:      "responsive",
+      severity:    "major",
+      wcag:        ["WCAG 1.4.4"],
+      title:       "Viewport meta tag blocks zoom",
+      description: `Viewport content "${hasViewportMeta.content}" prevents pinch-to-zoom. WCAG 1.4.4 requires users to be able to zoom up to 200%.`,
+    });
+  } else if (!hasViewportMeta.hasWidth) {
+    findings.push({
+      id:          `resp-viewport-width-${findingCount + findings.length + 1}`,
+      route:       route.path,
+      source:      "responsive",
+      severity:    "minor",
+      wcag:        ["Best Practice"],
+      title:       "Viewport meta tag missing width=device-width",
+      description: `Viewport content "${hasViewportMeta.content}" does not set width=device-width — page may not scale to fit mobile screens.`,
+    });
+  }
+
+  return findings;
+}
+
+async function checkImageOverflow(page, viewportWidth, route, screenshotDir, findingCount) {
+  const findings = [];
+
+  const overflowingImages = await page.evaluate((width) => {
+    const issues = [];
+    document.querySelectorAll("img").forEach((img) => {
+      const rect = img.getBoundingClientRect();
+      if (rect.width > width + 5) {
+        issues.push({
+          src:   img.getAttribute("src")?.slice(0, 50) || "",
+          alt:   img.getAttribute("alt")?.slice(0, 30) || "",
+          width: Math.round(rect.width),
+        });
+      }
+    });
+    return issues.slice(0, 5);
+  }, viewportWidth);
+
+  if (overflowingImages.length > 0) {
+    const first = overflowingImages[0];
+    const screenshotPath = await takeScreenshot(
+      page, screenshotDir, `img-overflow-${viewportWidth}px-${route.path.replace(/\//g, "-")}`
+    );
+
+    findings.push({
+      id:          `resp-img-${findingCount + findings.length + 1}`,
+      route:       route.path,
+      source:      "responsive",
+      severity:    "major",
+      wcag:        ["WCAG 1.4.10"],
+      title:       `Image overflows viewport at ${viewportWidth}px`,
+      description: `${overflowingImages.length} image(s) wider than the ${viewportWidth}px viewport. e.g. "${first.alt || first.src}" is ${first.width}px wide. Images should use max-width: 100%.`,
+      screenshot:  screenshotPath,
+    });
+  }
+
+  return findings;
+}
+
+async function checkMinimumFontSize(page, viewportWidth, route, findingCount) {
+  const findings = [];
+
+  if (viewportWidth > 480) return findings; // only relevant on mobile
+
+  const smallTextElements = await page.evaluate(() => {
+    const issues = [];
+    document.querySelectorAll("p, span, a, li, td, label, button").forEach((element) => {
+      const rect = element.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const fontSize = parseFloat(window.getComputedStyle(element).fontSize);
+      if (fontSize > 0 && fontSize < 12) {
+        issues.push({
+          text:     (element.textContent || "").trim().slice(0, 30),
+          fontSize: Math.round(fontSize),
+          tag:      element.tagName.toLowerCase(),
+        });
+      }
+    });
+    return issues.slice(0, 5);
+  });
+
+  if (smallTextElements.length > 0) {
+    const first = smallTextElements[0];
+    findings.push({
+      id:          `resp-fontsize-${findingCount + findings.length + 1}`,
+      route:       route.path,
+      source:      "responsive",
+      severity:    "minor",
+      wcag:        ["Best Practice"],
+      title:       "Text below 12px on mobile",
+      description: `${smallTextElements.length} element(s) have font-size under 12px on mobile. e.g. <${first.tag}> "${first.text}" at ${first.fontSize}px. Mobile users must zoom to read this.`,
+    });
+  }
+
+  return findings;
+}
+
 export async function runResponsiveChecks(browser, config, paths, authSession = null, authStorage = null) {
   const findings = [];
   const baseUrl = process.env.BASE_URL || config.baseUrl;
@@ -350,26 +479,7 @@ export async function runResponsiveChecks(browser, config, paths, authSession = 
     const page = await context.newPage();
 
     if (viewport.darkMode) {
-      // Prefer CSS media emulation (zero-cost, no navigation needed).
-      // If the app uses a UI toggle instead of prefers-color-scheme, use
-      // viewport.darkModeSetup to click the toggle after the first navigation.
       await page.emulateMedia({ colorScheme: "dark" });
-    }
-
-    // Activate dark mode via UI toggle (for apps that don't use prefers-color-scheme)
-    if (viewport.darkMode && viewport.darkModeSetup) {
-      const setup = viewport.darkModeSetup;
-      const setupUrl = `${baseUrl}${setup.navigateTo ?? config.routes[0]?.path ?? ""}`;
-      await navigateAuthenticated(page, setupUrl, config);
-
-      try {
-        const toggle = page.locator(setup.selector).first();
-        await toggle.waitFor({ state: "visible", timeout: 5000 });
-        await toggle.click();
-        await page.waitForTimeout(600);
-      } catch {
-        console.warn(`   ⚠ darkModeSetup: could not click "${setup.selector}" on ${setupUrl}`);
-      }
     }
 
     for (const route of config.routes) {
@@ -386,6 +496,27 @@ export async function runResponsiveChecks(browser, config, paths, authSession = 
         );
         findings.push(...overflowFindings);
         issueCount += overflowFindings.length;
+
+        const imageOverflowFindings = await checkImageOverflow(
+          page, viewport.width, route, paths.screenshots, findings.length
+        );
+        findings.push(...imageOverflowFindings);
+        issueCount += imageOverflowFindings.length;
+
+        if (viewport.width <= 480) {
+          const fontSizeFindings = await checkMinimumFontSize(
+            page, viewport.width, route, findings.length
+          );
+          findings.push(...fontSizeFindings);
+          issueCount += fontSizeFindings.length;
+        }
+
+        // Only check viewport meta once per route (not per-viewport — it doesn't change)
+        if (viewportName === "mobile") {
+          const viewportMetaFindings = await checkViewportMeta(page, route, findings.length);
+          findings.push(...viewportMetaFindings);
+          issueCount += viewportMetaFindings.length;
+        }
 
         if (viewport.width <= 768) {
           const touchFindings = await checkTouchTargets(
