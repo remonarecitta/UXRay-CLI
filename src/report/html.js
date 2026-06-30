@@ -1,31 +1,22 @@
 import { writeFileSync, readFileSync, existsSync } from "fs";
 
 
-/* SCORE HELPERS */
-
-function getScoreColor(score) {
-  if (score >= 85) return "#639922";
-  if (score >= 60) return "#BA7517";
-  return "#E24B4A";
-}
-
-function getScoreBackground(score) {
-  if (score >= 85) return "#EAF3DE";
-  if (score >= 60) return "#FAEEDA";
-  return "#FCEBEB";
-}
-
-function getScoreLabel(score) {
-  if (score >= 85) return "Pass";
-  if (score >= 60) return "Needs work";
-  return "Fail";
-}
+/* DESIGN TOKENS — matched to LPS Flite Service Portal
+   Background:   #FFFFFF
+   Sidebar:      #FAFAFA
+   Field bg:     #F3F3F4
+   Border:       #E5E5E7
+   Accent:       #E8821F (orange — primary actions, active state)
+   Accent tint:  #FBEBD9 (active nav highlight)
+   Text primary: #1A1A1A
+   Text 2:       #6B6B70
+   Text 3:       #767676 (AA-compliant 4.5:1 on white)
+   Font: system grotesque sans, bold headings
+*/
 
 function screenshotToDataUri(screenshotPath) {
   if (!screenshotPath) return null;
-
   const normalisedPath = screenshotPath.replace(/\\/g, "/");
-
   try {
     if (existsSync(normalisedPath)) {
       const imageBuffer = readFileSync(normalisedPath);
@@ -37,592 +28,760 @@ function screenshotToDataUri(screenshotPath) {
   }
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
 
-/* HTML RENDERERS */
+function getScoreColor(score) {
+  if (score >= 85) return "#2F9E58";
+  if (score >= 60) return "#E8821F";
+  return "#D8444A";
+}
 
-function renderRadialScore(score, label, size = 120) {
+function getScoreLabel(score) {
+  if (score >= 85) return "Pass";
+  if (score >= 60) return "Needs work";
+  return "Fail";
+}
+
+const SEVERITY_META = {
+  critical:          { color: "#CD2B31", bg: "#FBEAEA", label: "Critical" },
+  major:             { color: "#9C5A11", bg: "#FBEBD9", label: "Major" },
+  minor:             { color: "#6B6B70", bg: "#F3F3F4", label: "Minor" },
+  "manual-required": { color: "#5B4FC4", bg: "#EFEDFB", label: "Manual" },
+};
+
+const SOURCE_LABELS = {
+  axe:               "axe-core",
+  keyboard:          "Keyboard",
+  screenReader:      "Screen reader",
+  responsive:        "Responsive",
+  errors:            "Form errors",
+  wcagExtended:      "WCAG extended",
+  "manual-required": "Manual",
+};
+
+
+/* RENDERERS */
+
+function renderScoreGauge(score, label, size = 92) {
   const color         = getScoreColor(score);
-  const radius        = (size / 2) - 10;
-  const circumference = 2 * Math.PI * radius;
-  const filled        = (score / 100) * circumference;
-  const trackColor    = score >= 85 ? "#C6DFA6" : score >= 60 ? "#F0D4A0" : "#F5BFBF";
-  const fontSize      = size === 120 ? 26 : 18;
+  const radius        = (size / 2) - 7;
+  const circumference  = 2 * Math.PI * radius;
+  const filled         = (score / 100) * circumference;
+  const fontSize       = Math.round(size * 0.27);
 
   return `
-    <div style="display:flex;flex-direction:column;align-items:center">
+    <div class="gauge">
       <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+        <circle cx="${size / 2}" cy="${size / 2}" r="${radius}" fill="none" stroke="#EDEDEE" stroke-width="6" />
         <circle
-          cx="${size / 2}" cy="${size / 2}" r="${radius}"
-          fill="none" stroke="${trackColor}" stroke-width="8"
-          transform="rotate(-90 ${size / 2} ${size / 2})"
-        />
-        <circle
-          cx="${size / 2}" cy="${size / 2}" r="${radius}"
-          fill="none" stroke="${color}" stroke-width="8"
+          cx="${size / 2}" cy="${size / 2}" r="${radius}" fill="none"
+          stroke="${color}" stroke-width="6" stroke-linecap="round"
           stroke-dasharray="${filled} ${circumference - filled}"
-          stroke-linecap="round"
           transform="rotate(-90 ${size / 2} ${size / 2})"
         />
-        <text
-          x="${size / 2}" y="${size / 2 - 6}"
-          text-anchor="middle" dominant-baseline="middle"
-          font-size="${fontSize}" font-weight="600"
-          fill="${color}" font-family="-apple-system,BlinkMacSystemFont,sans-serif"
+        <text x="${size / 2}" y="${size / 2 + fontSize * 0.32}" text-anchor="middle"
+          font-size="${fontSize}" font-weight="800" fill="${color}" font-family="'Inter',sans-serif"
         >${score}</text>
-        <text
-          x="${size / 2}" y="${size / 2 + fontSize - 2}"
-          text-anchor="middle" dominant-baseline="middle"
-          font-size="11" fill="rgba(255,255,255,0.55)"
-          font-family="-apple-system,BlinkMacSystemFont,sans-serif"
-        >${label}</text>
       </svg>
+      <div class="gauge-label">${label}</div>
     </div>`;
 }
 
-function renderProgressBar(score, width = 120) {
-  const fillColor = getScoreColor(score);
-  const fillWidth = Math.round((score / 100) * width);
-
-  return `
-    <div style="display:inline-block;vertical-align:middle;background:#F1EFE8;border-radius:4px;height:7px;width:${width}px;overflow:hidden">
-      <div style="background:${fillColor};width:${fillWidth}px;height:100%;border-radius:4px"></div>
-    </div>`;
+function renderSeverityChip(severity) {
+  const meta = SEVERITY_META[severity] ?? SEVERITY_META.minor;
+  return `<span class="chip" style="color:${meta.color};background:${meta.bg}">${meta.label}</span>`;
 }
 
-function renderSeverityBadge(severity) {
-  const colorMap = {
-    critical:          ["#FCEBEB", "#791F1F"],
-    major:             ["#FAEEDA", "#633806"],
-    minor:             ["#F1EFE8", "#444441"],
-    "manual-required": ["#EEEDFE", "#3C3489"],
-  };
-
-  const [background, foreground] = colorMap[severity] ?? ["#F1EFE8", "#444441"];
-
-  return `<span style="background:${background};color:${foreground};font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">${severity}</span>`;
+function renderSourceChip(source) {
+  return `<span class="chip chip-source">${SOURCE_LABELS[source] ?? source}</span>`;
 }
 
-function renderSourceBadge(source) {
-  const colorMap = {
-    axe:               ["#E6F1FB", "#0C447C"],
-    keyboard:          ["#EEEDFE", "#3C3489"],
-    screenReader:      ["#E1F5EE", "#085041"],
-    responsive:        ["#FAEEDA", "#633806"],
-    errors:            ["#FCEBEB", "#791F1F"],
-    wcagExtended:      ["#F5EDF8", "#5C2D7A"],
-    "manual-required": ["#F1EFE8", "#5F5E5A"],
-  };
-
-  const [background, foreground] = colorMap[source] ?? ["#F1EFE8", "#444441"];
-
-  return `<span style="background:${background};color:${foreground};font-size:11px;padding:2px 7px;border-radius:10px">${source}</span>`;
-}
-
-function renderBedrockFix(finding) {
+function renderFixBlock(finding) {
   if (!finding.fix) return "";
+  const { description, before, after, file } = finding.fix;
 
   return `
-    <div class="finding-fix">
-      <div class="finding-fix__label">⚡ AI Fix (Bedrock)</div>
-      ${finding.fix.description ? `<p class="finding-fix__desc">${finding.fix.description}</p>` : ""}
-      ${finding.fix.before && finding.fix.after ? `
-        <div class="finding-fix__diff">
-          <div class="finding-fix__diff-block finding-fix__diff-block--before">
-            <span class="finding-fix__diff-label">Before</span>
-            <pre>${finding.fix.before}</pre>
-          </div>
-          <div class="finding-fix__diff-block finding-fix__diff-block--after">
-            <span class="finding-fix__diff-label">After</span>
-            <pre>${finding.fix.after}</pre>
-          </div>
-        </div>
-      ` : ""}
-    </div>`;
-}
-
-function renderFinding(finding) {
-  const screenshotPath = screenshotToDataUri(finding.screenshot);
-
-  return `
-    <div class="finding">
-      <div class="finding-top">
-        <div class="finding-badges">
-          ${renderSeverityBadge(finding.severity)}
-          ${renderSourceBadge(finding.source)}
-        </div>
-        <div class="finding-path">
-          <code>${finding.route}</code>
-        </div>
+    <div class="fix">
+      <div class="fix-head">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M13 2L4.5 14.5H11L10 22L19.5 9.5H13L13 2Z" stroke-linejoin="round" stroke-linecap="round"/>
+        </svg>
+        AI fix suggestion
+        ${file ? `<code class="fix-file">${escapeHtml(file)}</code>` : ""}
       </div>
-      <div class="finding-title">${finding.title}</div>
-      ${screenshotPath ? `
-        <div class="finding-screenshot">
-          <img src="${screenshotPath}" alt="Screenshot: ${finding.title}" loading="lazy">
+      ${description ? `<p class="fix-desc">${escapeHtml(description)}</p>` : ""}
+      ${before && after ? `
+        <div class="diff">
+          <div class="diff-col diff-before">
+            <span class="diff-label">− before</span>
+            <pre>${escapeHtml(before)}</pre>
+          </div>
+          <div class="diff-col diff-after">
+            <span class="diff-label">+ after</span>
+            <pre>${escapeHtml(after)}</pre>
+          </div>
         </div>` : ""}
-      <div class="finding-desc">${finding.description}</div>
-      ${renderBedrockFix(finding)}
-      <div class="finding-wcag">${(finding.wcag ?? []).join(" · ")}</div>
     </div>`;
 }
 
-function renderFindingGroup(severity, findings) {
-  const group = findings.filter((finding) => finding.severity === severity);
-
-  if (!group.length) return "";
-
-  const headerColors = {
-    critical: ["#FFF0F0", "#A32D2D"],
-    major:    ["#FFF8EE", "#854F0B"],
-    minor:    ["#F8F8F5", "#5F5E5A"],
-  };
-
-  const [headerBackground, headerColor] = headerColors[severity];
-  const findingLabel = group.length === 1 ? "finding" : "findings";
+function renderFinding(finding, index) {
+  const screenshotPath = screenshotToDataUri(finding.screenshot);
+  const wcagList        = (finding.wcag ?? []).join(" · ");
 
   return `
-    <div class="section" style="padding:0;overflow:hidden">
-      <div style="background:${headerBackground};padding:10px 20px;border-bottom:0.5px solid #E8E6DF">
-        <span style="font-size:12px;font-weight:600;color:${headerColor};text-transform:uppercase;letter-spacing:0.5px">${severity}</span>
-        <span style="font-size:12px;color:${headerColor};opacity:0.7;margin-left:6px">— ${group.length} ${findingLabel}</span>
+    <article class="finding" data-severity="${finding.severity}" data-source="${finding.source}"
+      data-search="${escapeHtml((finding.title + " " + finding.description + " " + finding.route).toLowerCase())}">
+      <button class="finding-toggle" type="button" aria-expanded="false" data-toggle="${index}">
+        <span class="finding-row">
+          ${renderSeverityChip(finding.severity)}
+          ${renderSourceChip(finding.source)}
+          <span class="finding-title">${escapeHtml(finding.title)}</span>
+          <code class="finding-route">${escapeHtml(finding.route)}</code>
+          <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </button>
+      <div class="finding-body" id="finding-body-${index}">
+        ${screenshotPath ? `<img class="finding-shot" src="${screenshotPath}" alt="Screenshot: ${escapeHtml(finding.title)}" loading="lazy">` : ""}
+        <p class="finding-desc">${escapeHtml(finding.description)}</p>
+        ${renderFixBlock(finding)}
+        ${wcagList ? `<div class="finding-wcag">${escapeHtml(wcagList)}</div>` : ""}
       </div>
-      <div style="padding:12px 20px">
-        ${group.map(renderFinding).join("")}
-      </div>
+    </article>`;
+}
+
+function renderFindingsList(findings) {
+  if (!findings.length) {
+    return `<div class="empty-state">No automated findings on this run.</div>`;
+  }
+  return findings.map((finding, index) => renderFinding(finding, index)).join("");
+}
+
+function renderMissionRows(personaReport) {
+  const rows = personaReport?.missionTable ?? [];
+  if (!rows.length) return "";
+
+  return rows.map((mission) => `
+    <tr>
+      <td class="mt-persona">${escapeHtml(mission.persona)}</td>
+      <td class="mt-mission">${escapeHtml(mission.mission)}</td>
+      <td class="mt-score">
+        <div class="mt-bar"><div class="mt-bar-fill" style="width:${mission.score}%;background:${getScoreColor(mission.score)}"></div></div>
+        <span style="color:${getScoreColor(mission.score)}">${mission.score}</span>
+      </td>
+      <td class="mt-passed">${mission.passed}/${mission.checks}</td>
+      <td><span class="chip" style="color:${getScoreColor(mission.score)};background:#F3F3F4">${getScoreLabel(mission.score)}</span></td>
+    </tr>`).join("");
+}
+
+function renderCategoryStrip(personaReport) {
+  const categories = Object.entries(personaReport?.categoryAverages ?? {});
+  if (!categories.length) return "";
+
+  return `
+    <div class="cat-strip">
+      ${categories.map(([name, score]) => `
+        <div class="cat-pill">
+          <span class="cat-pill-score" style="color:${getScoreColor(score)}">${score}</span>
+          <span class="cat-pill-label">${escapeHtml(name)}</span>
+        </div>`).join("")}
     </div>`;
 }
 
-
-
-function renderMissionTable(personaReport) {
+function renderPersonaSection(personaReport) {
   if (!personaReport) return "";
 
-  const categoryCards = Object.entries(personaReport.categoryAverages ?? {})
-    .map(([category, categoryScore]) => `
-      <div class="cat ${categoryScore >= 85 ? "cat-accent" : categoryScore >= 60 ? "cat-warn" : "cat-fail"}">
-        <div class="cat-n" style="color:${getScoreColor(categoryScore)}">${categoryScore}</div>
-        <div class="cat-l" style="color:${getScoreColor(categoryScore)}">${category}</div>
-      </div>`)
-    .join("");
-
-  const missionRows = (personaReport.missionTable ?? [])
-    .map((mission) => `
-      <div class="mission-row">
-        <span style="color:#5F5E5A;font-size:12px">${mission.persona}</span>
-        <span style="font-weight:500;font-size:13px">${mission.mission}</span>
-        <span style="display:flex;align-items:center;gap:6px">
-          ${renderProgressBar(mission.score, 70)}
-          <span style="font-size:13px;font-weight:600;color:${getScoreColor(mission.score)}">${mission.score}</span>
-        </span>
-        <span style="font-size:12px;color:#5F5E5A">${mission.passed}/${mission.checks}</span>
-        <span>
-          <span style="background:${getScoreBackground(mission.score)};color:${getScoreColor(mission.score)};font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">
-            ${getScoreLabel(mission.score)}
-          </span>
-        </span>
-      </div>`)
-    .join("");
-
   return `
-    <h2>User journey health scores</h2>
-    <div class="section">
-      <div class="cat-grid">${categoryCards}</div>
-      <div class="mission-header">
-        <span>Persona</span>
-        <span>Mission</span>
-        <span>Score</span>
-        <span>Passed</span>
-        <span>Status</span>
+    <section class="panel" id="panel-personas">
+      <div class="panel-head">
+        <h2>User journey missions</h2>
+        <span class="panel-sub">Each persona attempts a real task end to end</span>
       </div>
-      ${missionRows}
-    </div>`;
+      ${renderCategoryStrip(personaReport)}
+      <table class="mission-table">
+        <thead>
+          <tr><th>Persona</th><th>Mission</th><th>Score</th><th>Checks</th><th>Status</th></tr>
+        </thead>
+        <tbody>${renderMissionRows(personaReport)}</tbody>
+      </table>
+    </section>`;
 }
 
 function renderPersonaFailures(personaReport) {
-  if (!personaReport?.missionTable?.some((mission) => mission.failures?.length)) return "";
+  const failureMissions = (personaReport?.missionTable ?? []).filter((m) => m.failures?.length);
+  if (!failureMissions.length) return "";
 
-  const failureCards = (personaReport.missionTable ?? [])
-    .flatMap((mission) =>
-      (mission.failures ?? []).map((failure) => {
-        const screenshotPath = screenshotToDataUri(failure.screenshot);
+  const groups = failureMissions.map((mission, missionIndex) => {
+    const items = (mission.failures ?? []).map((failure, failureIndex) => {
+      const screenshotPath = screenshotToDataUri(failure.screenshot);
+      const itemId         = `failure-${missionIndex}-${failureIndex}`;
 
-        return `
-          <div class="finding">
-            <div class="finding-header">
-              <span style="background:#E1F5EE;color:#085041;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500">${mission.persona}</span>
-              <span style="font-size:11px;color:#888780;background:#F5F4F0;padding:1px 6px;border-radius:4px">${mission.mission}</span>
-              <span class="finding-title">${failure.label}</span>
-            </div>
-            ${failure.detail ? `<div class="finding-desc">${failure.detail}</div>` : ""}
-            ${screenshotPath ? `<img src="${screenshotPath}" alt="Screenshot: ${failure.label}" loading="lazy">` : ""}
-          </div>`;
-      })
-    )
-    .join("");
+      return `
+        <div class="failure-item">
+          <p class="failure-label">${escapeHtml(failure.label)}</p>
+          ${failure.detail ? `<p class="finding-desc">${escapeHtml(failure.detail)}</p>` : ""}
+          ${screenshotPath ? `
+            <button class="failure-shot-toggle" type="button" data-shot-toggle="${itemId}">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M21 17l-5-5-4 4-3-3-3 3" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              View screenshot
+            </button>
+            <div class="failure-shot-wrap" id="${itemId}">
+              <img class="finding-shot" src="${screenshotPath}" alt="${escapeHtml(failure.label)}" loading="lazy">
+            </div>` : ""}
+        </div>`;
+    }).join("");
+
+    return `
+      <div class="failure-group">
+        <div class="failure-group-head">
+          <span class="chip chip-source">${escapeHtml(mission.persona)}</span>
+          <code class="finding-route">${escapeHtml(mission.mission)}</code>
+          <span class="failure-count">${mission.failures.length} failed check${mission.failures.length === 1 ? "" : "s"}</span>
+        </div>
+        ${items}
+      </div>`;
+  }).join("");
 
   return `
-    <h2>Persona failures</h2>
-    <div class="section">${failureCards}</div>`;
+    <section class="panel" id="panel-failures">
+      <div class="panel-head">
+        <h2>Mission failures</h2>
+        <span class="panel-sub">Where a persona could not complete the task</span>
+      </div>
+      <div class="failure-list">${groups}</div>
+    </section>`;
 }
 
 function renderManualGaps(manualGaps) {
   if (!manualGaps.length) return "";
 
-  const uniqueWcagCriteria = [...new Set(manualGaps.map((gap) => gap.wcag?.[0]))];
+  const uniqueWcag = [...new Set(manualGaps.map((gap) => gap.wcag?.[0]))];
 
-  const gapItems = uniqueWcagCriteria
-    .map((wcag) => {
-      const gap         = manualGaps.find((item) => item.wcag?.[0] === wcag);
-      const description = gap?.description?.replace("[MANUAL] ", "") ?? "";
-
-      return `
-        <div class="manual-item">
-          <span class="wcag-tag">${wcag}</span>
-          <span>${description}</span>
-        </div>`;
-    })
-    .join("");
+  const items = uniqueWcag.map((wcag) => {
+    const gap = manualGaps.find((item) => item.wcag?.[0] === wcag);
+    const description = (gap?.description ?? "").replace("[MANUAL] ", "");
+    return `
+      <div class="manual-row">
+        <code class="finding-route">${escapeHtml(wcag)}</code>
+        <span>${escapeHtml(description)}</span>
+      </div>`;
+  }).join("");
 
   return `
-    <h2>Manual review required (${uniqueWcagCriteria.length} WCAG criteria)</h2>
-    <div class="section">
-      <div style="font-size:13px;color:#5F5E5A;margin-bottom:14px;padding-bottom:12px;border-bottom:0.5px solid #F1EFE8">
-        These criteria cannot be fully automated — human review is required to verify WCAG 2.1 AA compliance.
+    <section class="panel" id="panel-manual">
+      <div class="panel-head">
+        <h2>Manual review required</h2>
+        <span class="panel-sub">${uniqueWcag.length} WCAG criteria need human verification</span>
       </div>
-      ${gapItems}
-    </div>`;
+      ${items}
+    </section>`;
 }
 
-function buildReportStyles() {
+function buildStyles() {
   return `
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    :root {
+      --bg:         #FFFFFF;
+      --sidebar:    #FAFAFA;
+      --field-bg:   #F3F3F4;
+      --border:     #E5E5E7;
+      --accent:     #E8821F;
+      --accent-text:#B26112;
+      --accent-tint:#FBEBD9;
+      --text:       #1A1A1A;
+      --text-2:     #6B6B70;
+      --text-3:     #767676;
+      --mono: ui-monospace, "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+      --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
     * { box-sizing: border-box }
+
+    html { scroll-behavior: smooth }
 
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #F1EFE8;
-      color: #3d3d3a;
-      line-height: 1.5;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
     }
 
-    .container {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 32px 20px;
+    a { color: var(--accent-text) }
+
+    code, .mono { font-family: var(--mono) }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
     }
 
-    h2 {
-      font-size: 16px;
-      font-weight: 500;
-      margin: 32px 0 10px;
-      color: #3d3d3a;
+    @media (max-width: 860px) {
+      .shell { grid-template-columns: 1fr }
+      .sidebar { position: static; height: auto }
     }
 
-    .hero {
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-      border-radius: 16px;
-      padding: 32px;
-      margin-bottom: 24px;
-      color: #fff;
-    }
+    /* ── Sidebar ────────────────────────────────────────────────── */
 
-    .hero-title {
-      font-size: 24px;
-      font-weight: 600;
-      margin: 0 0 4px;
-      color: #fff;
-    }
-
-    .hero-sub {
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.6);
-      margin-bottom: 28px;
-    }
-
-    .scores-row {
+    .sidebar {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+      padding: 26px 20px;
       display: flex;
-      align-items: center;
-      gap: 32px;
-      flex-wrap: wrap;
-    }
-
-    .score-divider {
-      width: 1px;
-      height: 80px;
-      background: rgba(255, 255, 255, 0.15);
-    }
-
-    .hero-stats {
-      display: flex;
+      flex-direction: column;
       gap: 24px;
-      flex-wrap: wrap;
     }
 
-    .hero-stat { text-align: center }
-
-    .hero-stat-n {
-      font-size: 28px;
-      font-weight: 600;
-      line-height: 1;
-    }
-
-    .hero-stat-l {
-      font-size: 11px;
-      color: rgba(255, 255, 255, 0.55);
-      margin-top: 3px;
-    }
-
-    .severity-strip {
-      display: flex;
-      gap: 8px;
-      margin-top: 20px;
-      flex-wrap: wrap;
-    }
-
-    .sev-pill {
+    .brand {
       display: flex;
       align-items: center;
-      gap: 6px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      padding: 5px 12px;
-      font-size: 12px;
-      color: #fff;
+      gap: 9px;
     }
 
-    .sev-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
+    .brand-mark {
+      width: 28px; height: 28px;
+      border-radius: 7px;
+      background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      color: #FFFFFF;
       flex-shrink: 0;
     }
 
-    .section {
-      background: #fff;
-      border: 0.5px solid #D3D1C7;
-      border-radius: 10px;
-      padding: 18px 20px;
-      margin-bottom: 14px;
+    .brand-name {
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: -0.01em;
+      color: var(--text);
     }
 
-    .finding {
-      border: 0.5px solid #E8E6DF;
-      border-radius: 8px;
-      padding: 14px 16px;
-      margin-bottom: 8px;
-    }
+    .meta-block { font-size: 12px; color: var(--text-2) }
+    .meta-block strong { color: var(--text); font-weight: 600 }
+    .meta-row { display: flex; justify-content: space-between; padding: 3px 0 }
 
-    .finding:last-child { margin-bottom: 0 }
-
-    .finding-top {
+    .gauges {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 8px;
-      flex-wrap: wrap;
+      justify-content: space-around;
+      padding: 14px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
     }
 
-    .finding-badges {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+    .gauge { display: flex; flex-direction: column; align-items: center; gap: 6px }
+    .gauge-label { font-size: 10.5px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600 }
 
-    .finding-path code {
-      font-size: 11px;
-      color: #aaa89f;
-      background: #F5F4F0;
-      padding: 2px 7px;
-      border-radius: 4px;
-    }
-
-    .finding-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: #1a2332;
-      margin-bottom: 10px;
-      line-height: 1.4;
-    }
-
-    .finding-screenshot {
-      margin-bottom: 10px;
-      border-radius: 6px;
-      overflow: hidden;
-      border: 0.5px solid #D3D1C7;
-    }
-
-    .finding-screenshot img {
-      max-width: 100%;
-      display: block;
-    }
-
-    .finding-desc {
-      font-size: 12px;
-      color: #5F5E5A;
-      line-height: 1.5;
-      margin-bottom: 8px;
-    }
-
-    .finding-fix {
-      background: #F0FDF4;
-      border: 0.5px solid #86EFAC;
-      border-radius: 6px;
-      padding: 10px 12px;
-      margin-bottom: 8px;
-    }
-
-    .finding-fix__label {
-      font-size: 11px;
-      font-weight: 600;
-      color: #166534;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-      margin-bottom: 6px;
-    }
-
-    .finding-fix__desc {
-      font-size: 12px;
-      color: #166534;
-      margin-bottom: 8px;
-      line-height: 1.4;
-    }
-
-    .finding-fix__diff {
+    .stat-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-
-      @media (max-width: 600px) {
-        grid-template-columns: 1fr;
-      }
     }
 
-    .finding-fix__diff-block {
-      border-radius: 4px;
-      overflow: hidden;
-    }
-
-    .finding-fix__diff-label {
-      display: block;
-      font-size: 10px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding: 3px 8px;
-    }
-
-    .finding-fix__diff-block--before .finding-fix__diff-label {
-      background: #FCEBEB;
-      color: #791F1F;
-    }
-
-    .finding-fix__diff-block--after .finding-fix__diff-label {
-      background: #DCFCE7;
-      color: #166534;
-    }
-
-    .finding-fix__diff-block pre {
-      margin: 0;
-      padding: 8px;
-      font-size: 11px;
-      line-height: 1.4;
-      overflow-x: auto;
-      background: #FAFAF8;
-      color: #3d3d3a;
-    }
-
-    .finding-fix__diff-block--before pre { background: #FFF8F8 }
-    .finding-fix__diff-block--after pre  { background: #F0FDF4 }
-
-    .finding-wcag {
-      font-size: 11px;
-      color: #aaa89f;
-    }
-
-    .mission-row {
-      display: grid;
-      grid-template-columns: 130px 1fr 110px 60px 90px;
-      gap: 8px;
-      align-items: center;
-      padding: 8px 0;
-      border-bottom: 0.5px solid #F1EFE8;
-      font-size: 13px;
-    }
-
-    .mission-row:last-child { border-bottom: none }
-
-    .mission-header {
-      display: grid;
-      grid-template-columns: 130px 1fr 110px 60px 90px;
-      gap: 8px;
-      font-size: 11px;
-      font-weight: 500;
-      color: #888780;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding-bottom: 8px;
-      border-bottom: 0.5px solid #D3D1C7;
-      margin-bottom: 2px;
-    }
-
-    .cat-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-
-    .cat {
+    .stat {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 12px 14px;
-      position: relative;
-      overflow: hidden;
+      padding: 10px 12px;
     }
 
-    .cat-n { font-size: 22px; font-weight: 600 }
+    .stat-n { font-size: 20px; font-weight: 800; line-height: 1 }
+    .stat-l { font-size: 10.5px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px; font-weight: 600 }
 
-    .cat-l {
-      font-size: 11px;
-      margin-top: 2px;
-      text-transform: capitalize;
-      opacity: 0.75;
+    .filter-block { display: flex; flex-direction: column; gap: 10px }
+    .filter-title { font-size: 10.5px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700 }
+
+    .search-input {
+      width: 100%;
+      background: var(--field-bg);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 9px 11px;
+      color: var(--text);
+      font-size: 12.5px;
+      font-family: var(--sans);
     }
 
-    .cat-accent { background: linear-gradient(135deg, #EAF3DE, #D4EDAB) }
-    .cat-warn   { background: linear-gradient(135deg, #FAEEDA, #F5D49A) }
-    .cat-fail   { background: linear-gradient(135deg, #FCEBEB, #F5BFBF) }
+    .search-input::placeholder { color: var(--text-3) }
+    .search-input:focus { outline: none; border-color: var(--accent); background: #FFFFFF }
 
-    .manual-item {
-      padding: 7px 0;
-      border-bottom: 0.5px solid #F1EFE8;
-      font-size: 12px;
-      color: #5F5E5A;
+    .filter-pills { display: flex; flex-wrap: wrap; gap: 6px }
+
+    .filter-pill {
+      font-size: 11.5px;
+      font-weight: 500;
+      padding: 5px 11px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: #FFFFFF;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: border-color 0.12s, color 0.12s, background 0.12s;
+      font-family: var(--sans);
+    }
+
+    .filter-pill:hover { border-color: var(--accent) }
+    .filter-pill[aria-pressed="true"] { background: var(--accent-tint); border-color: var(--accent); color: #9C5A11; font-weight: 700 }
+
+    .sidebar-footer { margin-top: auto; font-size: 11px; color: var(--text-3); line-height: 1.6 }
+
+    /* ── Main ───────────────────────────────────────────────────── */
+
+    .main { padding: 28px 36px 80px; max-width: 1000px }
+
+    .top-bar {
       display: flex;
-      gap: 10px;
       align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+      gap: 8px;
     }
 
-    .manual-item:last-child { border-bottom: none }
+    .top-bar h1 {
+      font-size: 26px;
+      font-weight: 800;
+      margin: 0;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
 
-    .wcag-tag {
-      font-size: 11px;
-      font-weight: 500;
-      color: #3C3489;
-      background: #EEEDFE;
-      padding: 2px 7px;
-      border-radius: 8px;
-      white-space: nowrap;
+    .top-bar-sub { font-size: 12.5px; color: var(--text-2) }
+
+    .severity-legend { display: flex; gap: 14px; margin-bottom: 24px; flex-wrap: wrap }
+
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-2) }
+    .legend-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0 }
+
+    .panel {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 22px;
+      margin-bottom: 18px;
+    }
+
+    .panel-head { margin-bottom: 16px }
+    .panel-head h2 { font-size: 16px; font-weight: 800; margin: 0 0 2px; color: var(--text) }
+    .panel-sub { font-size: 12px; color: var(--text-3) }
+
+    /* ── Chips ──────────────────────────────────────────────────── */
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      padding: 3px 8px;
+      border-radius: 5px;
       flex-shrink: 0;
     }
 
-    footer {
-      text-align: center;
-      font-size: 12px;
-      color: #888780;
-      margin-top: 40px;
-      padding: 20px 0 28px;
-      border-top: 0.5px solid #D3D1C7;
+    .chip-source { background: var(--field-bg); color: var(--text-2); text-transform: none; font-weight: 500 }
+
+    /* ── Findings list ──────────────────────────────────────────── */
+
+    .finding {
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      margin-bottom: 7px;
+      background: #FFFFFF;
+      overflow: hidden;
+      transition: border-color 0.12s;
     }
+
+    .finding:hover { border-color: var(--accent) }
+    .finding.is-hidden { display: none }
+
+    .finding-toggle {
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 12px 16px;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      color: inherit;
+    }
+
+    .finding-row { display: flex; align-items: center; gap: 9px }
+
+    .finding-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .finding-route {
+      font-size: 11px;
+      color: var(--text-2);
+      background: var(--field-bg);
+      padding: 2px 7px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .chevron { color: var(--text-3); flex-shrink: 0; transition: transform 0.15s }
+    .finding-toggle[aria-expanded="true"] .chevron { transform: rotate(180deg) }
+
+    .finding-body {
+      display: none;
+      padding: 0 16px 16px;
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+    }
+
+    .finding-body.is-open { display: block }
+
+    .finding-shot {
+      max-width: 100%;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .finding-desc { font-size: 12.5px; color: var(--text-2); margin: 0 0 10px }
+    .finding-wcag { font-size: 11px; color: var(--text-3); margin-top: 10px; font-family: var(--mono) }
+
+    /* ── AI fix block ───────────────────────────────────────────── */
+
+    .fix {
+      background: var(--accent-tint);
+      border: 1px solid #F0BC7E;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+    }
+
+    .fix-head {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #9C5A11;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+    }
+
+    .fix-file { margin-left: auto; font-size: 10.5px; color: var(--text-2); text-transform: none; letter-spacing: 0; background: #FFFFFF; padding: 2px 6px; border-radius: 4px }
+
+    .fix-desc { font-size: 12.5px; color: #7A4A0F; margin: 0 0 10px }
+
+    .diff { display: grid; grid-template-columns: 1fr 1fr; gap: 8px }
+
+    @media (max-width: 600px) { .diff { grid-template-columns: 1fr } }
+
+    .diff-col { border-radius: 6px; overflow: hidden; border: 1px solid var(--border) }
+
+    .diff-label { display: block; font-size: 10px; font-weight: 700; padding: 4px 9px; text-transform: uppercase; letter-spacing: 0.04em }
+
+    .diff-before .diff-label { background: #FBEAEA; color: #CD2B31 }
+    .diff-after  .diff-label { background: #E7F5EB; color: #2F9E58 }
+
+    .diff-col pre {
+      margin: 0;
+      padding: 9px;
+      font-size: 11px;
+      line-height: 1.5;
+      overflow-x: auto;
+      background: #FFFFFF;
+      color: var(--text-2);
+      font-family: var(--mono);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* ── Mission table ──────────────────────────────────────────── */
+
+    .cat-strip { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px }
+
+    .cat-pill {
+      background: var(--field-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      min-width: 92px;
+    }
+
+    .cat-pill-score { display: block; font-size: 19px; font-weight: 800 }
+    .cat-pill-label { font-size: 10.5px; color: var(--text-3); text-transform: capitalize; font-weight: 500 }
+
+    .mission-table { width: 100%; border-collapse: collapse; font-size: 12.5px }
+
+    .mission-table th {
+      text-align: left;
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-3);
+      font-weight: 700;
+      padding: 0 10px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .mission-table td { padding: 9px 10px; border-bottom: 1px solid var(--border) }
+    .mission-table tr:last-child td { border-bottom: none }
+
+    .mt-persona { color: var(--text-2) }
+    .mt-mission { font-weight: 600 }
+
+    .mt-score { display: flex; align-items: center; gap: 8px; white-space: nowrap }
+    .mt-bar { width: 60px; height: 5px; border-radius: 3px; background: var(--field-bg); overflow: hidden }
+    .mt-bar-fill { height: 100% }
+    .mt-passed { color: var(--text-2) }
+
+    /* ── Failures grid ──────────────────────────────────────────── */
+
+    .failure-list { display: flex; flex-direction: column; gap: 14px }
+
+    .failure-group {
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      overflow: hidden;
+    }
+
+    .failure-group-head {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 11px 14px;
+      background: var(--sidebar);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .failure-count { margin-left: auto; font-size: 11px; color: var(--text-3); font-weight: 600; white-space: nowrap }
+
+    .failure-item { padding: 12px 14px; border-bottom: 1px solid var(--border) }
+    .failure-item:last-child { border-bottom: none }
+
+    .failure-label { font-size: 13px; font-weight: 600; margin: 0 0 5px; color: var(--text) }
+
+    .failure-shot-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--accent-text);
+      background: none;
+      border: none;
+      padding: 0;
+      margin-top: 6px;
+      cursor: pointer;
+      font-family: var(--sans);
+    }
+
+    .failure-shot-toggle:hover { text-decoration: underline }
+
+    .failure-shot-wrap { display: none; margin-top: 10px }
+    .failure-shot-wrap.is-open { display: block }
+
+    /* ── Manual review ──────────────────────────────────────────── */
+
+    .manual-row {
+      display: flex;
+      gap: 14px;
+      align-items: baseline;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12.5px;
+      color: var(--text-2);
+    }
+
+    .manual-row:last-child { border-bottom: none }
+
+    .empty-state { text-align: center; padding: 40px 0; color: var(--text-3); font-size: 13px }
+
+    /* ── Footer ─────────────────────────────────────────────────── */
+
+    .page-footer {
+      text-align: center;
+      font-size: 11.5px;
+      color: var(--text-3);
+      padding: 24px 0 10px;
+    }
+  `;
+}
+
+function buildScript() {
+  return `
+    (function () {
+      const findings = Array.from(document.querySelectorAll('.finding'));
+      const toggles   = Array.from(document.querySelectorAll('.finding-toggle'));
+      const search    = document.getElementById('search-input');
+      const pills     = Array.from(document.querySelectorAll('.filter-pill'));
+
+      toggles.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const expanded = btn.getAttribute('aria-expanded') === 'true';
+          btn.setAttribute('aria-expanded', String(!expanded));
+          const body = document.getElementById('finding-body-' + btn.dataset.toggle);
+          if (body) body.classList.toggle('is-open', !expanded);
+        });
+      });
+
+      const shotToggles = Array.from(document.querySelectorAll('[data-shot-toggle]'));
+      shotToggles.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const wrap = document.getElementById(btn.dataset.shotToggle);
+          if (!wrap) return;
+          const open = wrap.classList.toggle('is-open');
+          btn.lastChild.textContent = open ? ' Hide screenshot' : ' View screenshot';
+        });
+      });
+
+      const state = { severity: 'all', source: 'all', query: '' };
+
+      function applyFilters() {
+        findings.forEach((el) => {
+          const matchesSeverity = state.severity === 'all' || el.dataset.severity === state.severity;
+          const matchesSource   = state.source   === 'all' || el.dataset.source   === state.source;
+          const matchesQuery    = !state.query || el.dataset.search.includes(state.query);
+          el.classList.toggle('is-hidden', !(matchesSeverity && matchesSource && matchesQuery));
+        });
+      }
+
+      if (search) {
+        search.addEventListener('input', (e) => {
+          state.query = e.target.value.trim().toLowerCase();
+          applyFilters();
+        });
+      }
+
+      pills.forEach((pill) => {
+        pill.addEventListener('click', () => {
+          const group = pill.dataset.group;
+          const value = pill.dataset.value;
+          pills.filter((p) => p.dataset.group === group).forEach((p) => p.setAttribute('aria-pressed', 'false'));
+          pill.setAttribute('aria-pressed', 'true');
+          state[group] = value;
+          applyFilters();
+        });
+      });
+    })();
   `;
 }
 
@@ -630,109 +789,128 @@ function buildReportStyles() {
 /* MAIN EXPORT */
 
 export async function generateHtmlReport(findingsOutput, personaReport, paths) {
-  const automatedFindings = (findingsOutput.findings ?? []).filter(
-    (finding) => finding.source !== "manual-required"
-  );
-  const manualGaps     = (findingsOutput.findings ?? []).filter(
-    (finding) => finding.source === "manual-required"
-  );
-  const auditScore     = findingsOutput.auditScore ?? 100;
-  const personaScore   = personaReport?.overallScore ?? null;
-  const durationSeconds = findingsOutput.durationMs
-    ? Math.round(findingsOutput.durationMs / 1000)
-    : null;
+  const automatedFindings = (findingsOutput.findings ?? []).filter((f) => f.source !== "manual-required");
+  const manualGaps         = (findingsOutput.findings ?? []).filter((f) => f.source === "manual-required");
+  const auditScore         = findingsOutput.auditScore ?? 100;
+  const personaScore       = personaReport?.overallScore ?? null;
+  const durationSeconds    = findingsOutput.durationMs ? Math.round(findingsOutput.durationMs / 1000) : null;
+
+  const criticalCount = automatedFindings.filter((f) => f.severity === "critical").length;
+  const majorCount    = automatedFindings.filter((f) => f.severity === "major").length;
+  const minorCount    = automatedFindings.filter((f) => f.severity === "minor").length;
+
+  const sortedFindings = [...automatedFindings].sort((a, b) => {
+    const order = { critical: 0, major: 1, minor: 2 };
+    return (order[a.severity] ?? 3) - (order[b.severity] ?? 3);
+  });
+
+  const sourcesUsed = [...new Set(automatedFindings.map((f) => f.source))];
 
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>UXRay — ${findingsOutput.appName ?? "Accessibility Report"}</title>
-  <style>${buildReportStyles()}</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UXRay — ${escapeHtml(findingsOutput.appName ?? "Accessibility Report")}</title>
+<style>${buildStyles()}</style>
 </head>
 <body>
-  <div class="container">
+<div class="shell">
 
-    <div class="hero">
-      <div class="hero-title">UXRay — ${findingsOutput.appName ?? "Accessibility Report"}</div>
-      <div class="hero-sub">
-        ${new Date(findingsOutput.generatedAt).toLocaleString()}
-        &nbsp;·&nbsp;
-        <code style="background:rgba(255,255,255,0.1);padding:1px 6px;border-radius:4px;font-size:12px">
-          ${findingsOutput.target}
-        </code>
-        &nbsp;·&nbsp; WCAG 2.1 AA &nbsp;·&nbsp; ~80% automated coverage
-        ${durationSeconds ? `&nbsp;·&nbsp; ${durationSeconds}s` : ""}
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5">
+          <circle cx="11" cy="11" r="7" stroke-linecap="round"/>
+          <path d="M21 21l-4.3-4.3" stroke-linecap="round"/>
+        </svg>
       </div>
+      <span class="brand-name">UXRay</span>
+    </div>
 
-      <div class="scores-row">
-        ${renderRadialScore(auditScore, "audit score", 120)}
-        ${personaScore != null ? `<div class="score-divider"></div>${renderRadialScore(personaScore, "persona score", 120)}` : ""}
-        <div class="score-divider"></div>
-        <div class="hero-stats">
-          <div class="hero-stat">
-            <div class="hero-stat-n">${automatedFindings.length}</div>
-            <div class="hero-stat-l">findings</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-n" style="color:#F5BFBF">
-              ${automatedFindings.filter((f) => f.severity === "critical").length}
-            </div>
-            <div class="hero-stat-l">critical</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-n" style="color:#F5D49A">
-              ${automatedFindings.filter((f) => f.severity === "major").length}
-            </div>
-            <div class="hero-stat-l">major</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-n" style="color:rgba(255,255,255,0.7)">
-              ${automatedFindings.filter((f) => f.severity === "minor").length}
-            </div>
-            <div class="hero-stat-l">minor</div>
-          </div>
-          <div class="hero-stat">
-            <div class="hero-stat-n" style="color:rgba(255,255,255,0.5)">${manualGaps.length}</div>
-            <div class="hero-stat-l">manual gaps</div>
-          </div>
-        </div>
-      </div>
+    <div class="meta-block">
+      <div class="meta-row"><span>App</span><strong>${escapeHtml(findingsOutput.appName ?? "—")}</strong></div>
+      <div class="meta-row"><span>Target</span><strong class="mono">${escapeHtml(findingsOutput.target ?? "—")}</strong></div>
+      <div class="meta-row"><span>Standard</span><strong>WCAG 2.1 AA</strong></div>
+      <div class="meta-row"><span>Coverage</span><strong>~80% automated</strong></div>
+      ${durationSeconds ? `<div class="meta-row"><span>Duration</span><strong>${durationSeconds}s</strong></div>` : ""}
+      <div class="meta-row"><span>Generated</span><strong>${new Date(findingsOutput.generatedAt).toLocaleString()}</strong></div>
+    </div>
 
-      <div class="severity-strip">
-        <div class="sev-pill">
-          <div class="sev-dot" style="background:#F5BFBF"></div>
-          Critical — blocked for screen readers, keyboard, assistive tech
-        </div>
-        <div class="sev-pill">
-          <div class="sev-dot" style="background:#F5D49A"></div>
-          Major — real barriers with WCAG citation
-        </div>
-        <div class="sev-pill">
-          <div class="sev-dot" style="background:rgba(255,255,255,0.4)"></div>
-          Minor — usability issues, lower impact
-        </div>
+    <div class="gauges">
+      ${renderScoreGauge(auditScore, "Audit score")}
+      ${personaScore != null ? renderScoreGauge(personaScore, "Persona score") : ""}
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat"><div class="stat-n" style="color:#D8444A">${criticalCount}</div><div class="stat-l">Critical</div></div>
+      <div class="stat"><div class="stat-n" style="color:#E8821F">${majorCount}</div><div class="stat-l">Major</div></div>
+      <div class="stat"><div class="stat-n" style="color:#6B6B70">${minorCount}</div><div class="stat-l">Minor</div></div>
+      <div class="stat"><div class="stat-n" style="color:#767676">${manualGaps.length}</div><div class="stat-l">Manual</div></div>
+    </div>
+
+    <div class="filter-block">
+      <span class="filter-title">Search</span>
+      <input id="search-input" class="search-input" type="text" placeholder="Filter findings…" />
+    </div>
+
+    <div class="filter-block">
+      <span class="filter-title">Severity</span>
+      <div class="filter-pills">
+        <button class="filter-pill" type="button" data-group="severity" data-value="all" aria-pressed="true">All</button>
+        <button class="filter-pill" type="button" data-group="severity" data-value="critical" aria-pressed="false">Critical</button>
+        <button class="filter-pill" type="button" data-group="severity" data-value="major" aria-pressed="false">Major</button>
+        <button class="filter-pill" type="button" data-group="severity" data-value="minor" aria-pressed="false">Minor</button>
       </div>
     </div>
 
+    <div class="filter-block">
+      <span class="filter-title">Source</span>
+      <div class="filter-pills">
+        <button class="filter-pill" type="button" data-group="source" data-value="all" aria-pressed="true">All</button>
+        ${sourcesUsed.map((src) => `<button class="filter-pill" type="button" data-group="source" data-value="${src}" aria-pressed="false">${SOURCE_LABELS[src] ?? src}</button>`).join("")}
+      </div>
+    </div>
 
+    <div class="sidebar-footer">
+      axe-core · keyboard (CDP) · virtual screen reader<br>
+      responsive · personas · Bedrock fixes
+    </div>
+  </aside>
 
-    ${renderMissionTable(personaReport)}
+  <main class="main">
 
-    <h2>Findings (${automatedFindings.length})</h2>
-    ${["critical", "major", "minor"].map((severity) => renderFindingGroup(severity, automatedFindings)).join("")}
+    <div class="top-bar">
+      <h1>${escapeHtml(findingsOutput.appName ?? "Accessibility Report")}</h1>
+      <span class="top-bar-sub">${automatedFindings.length} findings · ${manualGaps.length} manual gaps</span>
+    </div>
+
+    <div class="severity-legend">
+      <span class="legend-item"><span class="legend-dot" style="background:#D8444A"></span>Critical — blocked for assistive tech</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#E8821F"></span>Major — real barrier, WCAG cited</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#9B9B9F"></span>Minor — usability, lower impact</span>
+    </div>
+
+    ${renderPersonaSection(personaReport)}
+
+    <section class="panel" id="panel-findings">
+      <div class="panel-head">
+        <h2>Findings</h2>
+        <span class="panel-sub">Sorted by severity — click any row to expand</span>
+      </div>
+      ${renderFindingsList(sortedFindings)}
+    </section>
 
     ${renderPersonaFailures(personaReport)}
 
     ${renderManualGaps(manualGaps)}
 
-    <footer>
-      UXRay &nbsp;·&nbsp; WCAG 2.1 AA &nbsp;·&nbsp;
-      axe-core + keyboard (CDP) + virtual SR + responsiveness + personas &nbsp;·&nbsp;
-      ~80% automated AA coverage
-    </footer>
+    <div class="page-footer">UXRay · WCAG 2.1 AA automated accessibility and responsiveness audit</div>
 
-  </div>
+  </main>
+</div>
+
+<script>${buildScript()}</script>
 </body>
 </html>`;
 
