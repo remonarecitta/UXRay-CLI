@@ -1,5 +1,6 @@
 import { mkdirSync } from "fs";
 import { join } from "path";
+import { createAuthenticatedContext, navigateAuthenticated } from "../context.js";
 
 const MINIMUM_FOCUS_OUTLINE_WIDTH = 0;
 
@@ -281,16 +282,67 @@ async function checkModalEscape(page, route, screenshotDir, findingId) {
   return findings;
 }
 
-export async function runKeyboardChecks(browser, config, paths) {
+async function checkFocusOrder(page, route, screenshotDir, findingId) {
+  const findings = [];
+
+  // Positive tabindex values (> 0) override natural DOM focus order — a common SPA mistake
+  // that creates unpredictable and often illogical tab sequences.
+  const positiveTabIndexElements = await page.evaluate(() => {
+    return Array.from(document.querySelectorAll("[tabindex]"))
+      .filter((el) => {
+        const ti = parseInt(el.getAttribute("tabindex"), 10);
+        const rect = el.getBoundingClientRect();
+        return ti > 0 && rect.width > 0 && rect.height > 0;
+      })
+      .map((el) => ({
+        tag: el.tagName.toLowerCase(),
+        tabindex: el.getAttribute("tabindex"),
+        testId: el.getAttribute("data-testid") || "",
+        text: (el.textContent || el.getAttribute("aria-label") || "").trim().slice(0, 50),
+      }))
+      .slice(0, 10);
+  });
+
+  if (positiveTabIndexElements.length > 0) {
+    const screenshotPath = await takeScreenshot(
+      page,
+      screenshotDir,
+      `tab-order-${route.path.replace(/\//g, "-")}`
+    );
+
+    const examples = positiveTabIndexElements
+      .slice(0, 3)
+      .map((el) => `<${el.tag} tabindex="${el.tabindex}"> "${el.text || el.testId}"`)
+      .join("; ");
+
+    findings.push({
+      id: `kb-taborder-${findingId}`,
+      route: route.path,
+      source: "keyboard",
+      severity: "major",
+      wcag: ["WCAG 2.4.3"],
+      title: "Positive tabindex values override logical focus order",
+      description:
+        `${positiveTabIndexElements.length} element(s) have tabindex > 0, ` +
+        `which pulls them to the front of the tab sequence regardless of DOM position, ` +
+        `creating a confusing and unpredictable focus order for keyboard users. ` +
+        `Use tabindex="0" to make elements focusable in DOM order, or tabindex="-1" for programmatic-only focus. ` +
+        `Examples: ${examples}.`,
+      screenshot: screenshotPath,
+    });
+  }
+
+  return findings;
+}
+
+export async function runKeyboardChecks(browser, config, paths, authSession = null, authStorage = null) {
   const findings = [];
   const baseUrl = process.env.BASE_URL || config.baseUrl;
   const maximumTabs = config.thresholds?.maxTabs || 60;
 
   mkdirSync(paths.screenshots, { recursive: true });
 
-  const context = await browser.newContext({
-    viewport: { width: 1280, height: 800 },
-  });
+  const context = await createAuthenticatedContext(browser, config);
 
   const page = await context.newPage();
 
@@ -306,7 +358,7 @@ export async function runKeyboardChecks(browser, config, paths) {
     let issueCount = 0;
 
     try {
-      await navigateToPage(page, url, route);
+      await navigateAuthenticated(page, url, config, route.waitFor);
       const skipNavFinding = await checkSkipNavigation(
         page, route, paths.screenshots, findings.length + 1
       );
@@ -315,7 +367,7 @@ export async function runKeyboardChecks(browser, config, paths) {
         issueCount++;
       }
 
-      await navigateToPage(page, url, route);
+      await navigateAuthenticated(page, url, config, route.waitFor);
       const focusFinding = await checkFocusVisible(
         page, route, paths.screenshots, findings.length + 1, maximumTabs
       );
@@ -324,7 +376,7 @@ export async function runKeyboardChecks(browser, config, paths) {
         issueCount++;
       }
 
-      await navigateToPage(page, url, route);
+      await navigateAuthenticated(page, url, config, route.waitFor);
       const trapFinding = await checkKeyboardTrap(
         page, route, paths.screenshots, findings.length + 1, maximumTabs
       );
@@ -333,12 +385,19 @@ export async function runKeyboardChecks(browser, config, paths) {
         issueCount++;
       }
 
-      await navigateToPage(page, url, route);
+      await navigateAuthenticated(page, url, config, route.waitFor);
       const modalFindings = await checkModalEscape(
         page, route, paths.screenshots, findings.length + 1
       );
       findings.push(...modalFindings);
       issueCount += modalFindings.length;
+
+      await navigateAuthenticated(page, url, config, route.waitFor);
+      const focusOrderFindings = await checkFocusOrder(
+        page, route, paths.screenshots, findings.length + 1
+      );
+      findings.push(...focusOrderFindings);
+      issueCount += focusOrderFindings.length;
 
       console.log(`→ ${issueCount} issue(s)`);
     } catch (error) {

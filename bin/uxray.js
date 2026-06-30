@@ -52,9 +52,10 @@ function parseArguments(argv) {
     checks:      null,
     route:       null,
     viewport:    null,
-    runPersonas: true,
-    runBedrock:  false,
-    runLive:     false,
+    runPersonas:    true,
+    runBedrock:     false,
+    checkBedrock:   false,
+    runLive:        false,
     outputDir:   null,
     showHelp:    false,
     showVersion: false,
@@ -76,6 +77,8 @@ function parseArguments(argv) {
       args.runPersonas = false;
     } else if (argument === "--bedrock") {
       args.runBedrock = true;
+    } else if (argument === "--bedrock-check") {
+      args.checkBedrock = true;
     } else if (argument === "--live") {
       args.runLive = true;
     } else if (argument === "--checks") {
@@ -118,6 +121,7 @@ Options:
   --no-personas       Skip persona health scoring
   --live              Open browser visibly, tab through pages, speak announcements
   --bedrock           Run AI fix suggestions after audit (requires AWS credentials)
+  --bedrock-check     Test AWS credentials and Bedrock model reachability, then exit
   --out <dir>         Output directory (default: .uxray)
   --dry-run           Print what would run without executing checks
   --help, -h          Show this help message
@@ -220,6 +224,12 @@ async function main() {
     return;
   }
 
+  if (args.checkBedrock) {
+    const { checkBedrockConnection } = await import("../src/bedrock.js");
+    const result = await checkBedrockConnection();
+    process.exit(result.ok ? 0 : 1);
+  }
+
   const config = await loadConfig(workingDirectory);
   validateConfig(config);
 
@@ -256,11 +266,21 @@ async function main() {
   const allFindings = [];
 
   const routesRequireAuth = config.routes.some((route) => route.requiresAuth);
-  let authSession = null;
+  let authSession    = null;
+  let authStorage    = null;
 
   if (routesRequireAuth && config.auth) {
     try {
       authSession = await createAuthSession(browser, config);
+
+      // Extract storageState (cookies + localStorage) and sessionStorage separately
+      // campaign-ui stores the auth token in sessionStorage which storageState() misses
+      authStorage = {
+        storageState:    await authSession._context.storageState(),
+        sessionStorage:  authSession._sessionStorage ?? {},
+        tokenKey:        config.auth?.tokenKey ?? "token",
+        baseUrl:         process.env.BASE_URL || config.baseUrl,
+      };
     } catch (error) {
       console.error(`\nAuth error: ${error.message}\n`);
       await browser.close();
@@ -273,7 +293,7 @@ async function main() {
   const checkResults = await Promise.allSettled(
     checksToRun.map((checkName) => {
       console.log(`\n── ${checkName} ${"─".repeat(46 - checkName.length)}`);
-      return CHECK_MODULES[checkName](browser, config, outputPaths, authSession);
+      return CHECK_MODULES[checkName](browser, config, outputPaths, authSession, authStorage);
     })
   );
 
@@ -290,8 +310,7 @@ async function main() {
   if (args.runPersonas && config.checks.length > 0) {
     console.log(`\n── personas ${"─".repeat(45)}`);
     try {
-      personaReport = await runPersonas(browser, config, outputPaths);
-      writeFileSync(outputPaths.reportJson, JSON.stringify(personaReport, null, 2));
+      personaReport = await runPersonas(browser, config, outputPaths, authStorage);
     } catch (error) {
       console.log(`  ⚠ Personas failed: ${error.message}`);
     }
@@ -343,6 +362,45 @@ async function main() {
       }
     } catch (error) {
       console.log(`  ⚠ Bedrock failed: ${error.message}`);
+    }
+  }
+
+  if (config.publish?.s3Bucket) {
+    console.log(`\n── publishing ─────────────────────────────────────`);
+    try {
+      const { S3Client, PutObjectCommand } = await import("@aws-sdk/client-s3");
+      const { readFileSync } = await import("fs");
+
+      const s3Client  = new S3Client({ region: config.publish.s3Region ?? "us-west-2" });
+      const reportKey = config.publish.s3Key ?? "latest/report.html";
+      const appName   = (config.appName ?? "report").toLowerCase().replace(/\s+/g, "-");
+
+      // Upload latest report
+      await s3Client.send(new PutObjectCommand({
+        Bucket:      config.publish.s3Bucket,
+        Key:         reportKey,
+        Body:        readFileSync(outputPaths.report),
+        ContentType: "text/html",
+      }));
+
+      // Also upload a timestamped copy
+      const timestamp     = new Date().toISOString().slice(0, 16).replace("T", "-").replace(":", "");
+      const timestampedKey = `history/${appName}-${timestamp}.html`;
+
+      await s3Client.send(new PutObjectCommand({
+        Bucket:      config.publish.s3Bucket,
+        Key:         timestampedKey,
+        Body:        readFileSync(outputPaths.report),
+        ContentType: "text/html",
+      }));
+
+      const reportUrl = `http://${config.publish.s3Bucket}.s3-website-${config.publish.s3Region ?? "us-west-2"}.amazonaws.com/${reportKey}`;
+
+      console.log(`  ✓ Published to S3`);
+      console.log(`  URL: ${reportUrl}`);
+      console.log(`  History: s3://${config.publish.s3Bucket}/${timestampedKey}`);
+    } catch (error) {
+      console.log(`  ⚠ Publish failed: ${error.message}`);
     }
   }
 

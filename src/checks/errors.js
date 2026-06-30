@@ -1,5 +1,6 @@
 import { join } from "path";
 import { mkdirSync } from "fs";
+import { createAuthenticatedContext, navigateAuthenticated } from "../context.js";
 
 async function takeScreenshot(page, paths, name) {
   try {
@@ -11,13 +12,13 @@ async function takeScreenshot(page, paths, name) {
   }
 }
 
-export async function runErrorChecks(browser, config, paths) {
+export async function runErrorChecks(browser, config, paths, authSession = null, authStorage = null) {
   const findings = [];
   const baseUrl = process.env.BASE_URL || config.baseUrl;
 
   mkdirSync(paths.screenshots, { recursive: true });
 
-  const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  const context = await createAuthenticatedContext(browser, config);
   const page = await context.newPage();
 
   for (const route of config.routes) {

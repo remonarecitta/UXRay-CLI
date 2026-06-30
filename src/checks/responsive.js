@@ -1,5 +1,6 @@
 import { join } from "path";
 import { mkdirSync } from "fs";
+import { createAuthenticatedContext, navigateAuthenticated } from "../context.js";
 
 async function navigateToPage(page, url, route) {
   await page.goto(url, { waitUntil: "domcontentloaded", timeout: 15000 });
@@ -320,7 +321,7 @@ async function checkOrientation(page, viewport, route, findingCount) {
   return findings;
 }
 
-export async function runResponsiveChecks(browser, config, paths) {
+export async function runResponsiveChecks(browser, config, paths, authSession = null, authStorage = null) {
   const findings = [];
   const baseUrl = process.env.BASE_URL || config.baseUrl;
   const minimumTouchSize = config.thresholds?.touchPx || 44;
@@ -339,12 +340,37 @@ export async function runResponsiveChecks(browser, config, paths) {
   const viewports = Object.entries(config.viewports || defaultViewports);
 
   for (const [viewportName, viewport] of viewports) {
-    const context = await browser.newContext({
-      viewport: { width: viewport.width, height: viewport.height },
-      colorScheme: viewport.darkMode ? "dark" : "light",
+    const context = await createAuthenticatedContext(browser, config, {
+      width:  viewport.width,
+      height: viewport.height,
     });
+    await context.setExtraHTTPHeaders({});
+
 
     const page = await context.newPage();
+
+    if (viewport.darkMode) {
+      // Prefer CSS media emulation (zero-cost, no navigation needed).
+      // If the app uses a UI toggle instead of prefers-color-scheme, use
+      // viewport.darkModeSetup to click the toggle after the first navigation.
+      await page.emulateMedia({ colorScheme: "dark" });
+    }
+
+    // Activate dark mode via UI toggle (for apps that don't use prefers-color-scheme)
+    if (viewport.darkMode && viewport.darkModeSetup) {
+      const setup = viewport.darkModeSetup;
+      const setupUrl = `${baseUrl}${setup.navigateTo ?? config.routes[0]?.path ?? ""}`;
+      await navigateAuthenticated(page, setupUrl, config);
+
+      try {
+        const toggle = page.locator(setup.selector).first();
+        await toggle.waitFor({ state: "visible", timeout: 5000 });
+        await toggle.click();
+        await page.waitForTimeout(600);
+      } catch {
+        console.warn(`   ⚠ darkModeSetup: could not click "${setup.selector}" on ${setupUrl}`);
+      }
+    }
 
     for (const route of config.routes) {
       const url = `${baseUrl}${route.path}`;
@@ -353,7 +379,7 @@ export async function runResponsiveChecks(browser, config, paths) {
       let issueCount = 0;
 
       try {
-        await navigateToPage(page, url, route);
+        await navigateAuthenticated(page, url, config, route.waitFor);
 
         const overflowFindings = await checkOverflow(
           page, viewport.width, route, paths.screenshots, findings.length

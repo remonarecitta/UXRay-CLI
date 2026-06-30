@@ -23,6 +23,15 @@ export default {
     tablet:  { width: 768,  height: 1024 },
     desktop: { width: 1280, height: 800  },
     dark:    { width: 1280, height: 800, darkMode: true },
+    // If dark mode is toggled via a UI element rather than prefers-color-scheme,
+    // add darkModeSetup to navigate to the toggle and click it before scanning:
+    // dark: {
+    //   width: 1280, height: 800, darkMode: true,
+    //   darkModeSetup: {
+    //     navigateTo: "/settings",          // route that has the dark-mode toggle
+    //     selector:   "[data-testid='dark-mode-toggle']",
+    //   },
+    // },
   },
 
   thresholds: {
