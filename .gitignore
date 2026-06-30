@@ -4,3 +4,9 @@ dist/
 test-results/
 *.log.uxray/
 *.json
+
+# Local environment — credentials & secrets. NEVER commit these.
+.env
+.env.local
+.env.*.local
+

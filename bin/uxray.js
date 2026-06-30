@@ -53,7 +53,7 @@ function parseArguments(argv) {
     route:       null,
     viewport:    null,
     runPersonas: true,
-    runBedrock:  false,
+    runBedrock:  true,
     bedrockHtml: null,   // path to report.html for HTML-mode bedrock input
     runLive:     false,
     outputDir:   null,
