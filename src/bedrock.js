@@ -1,4 +1,5 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
+import { STSClient, GetCallerIdentityCommand } from "@aws-sdk/client-sts";
 import { readFileSync, writeFileSync, existsSync } from "fs";
 import { resolve } from "path";
 import { config as loadDotenv } from "dotenv";
@@ -6,7 +7,7 @@ import { config as loadDotenv } from "dotenv";
 // Load .env file if present (local dev). Never commit .env to source control.
 loadDotenv({ path: resolve(process.cwd(), ".env") });
 
-const MODEL_ID        = "anthropic.claude-3-5-sonnet-20241022-v2:0";
+const MODEL_ID        = "us.anthropic.claude-sonnet-4-5-20250929-v1:0";
 const MAX_TOKENS      = 1024;
 const MAX_SOURCE_CHARS = 2000;
 
@@ -180,6 +181,23 @@ function validateAwsCredentials() {
   }
 }
 
+async function verifyAwsIdentity(region) {
+  try {
+    const sts      = new STSClient({ region });
+    const identity = await sts.send(new GetCallerIdentityCommand({}));
+    console.log(`  Identity: ${identity.Arn}`);
+    return true;
+  } catch (error) {
+    if (error.name === "ExpiredTokenException") {
+      throw new Error(
+        "AWS session token has expired. Refresh your credentials in .env and re-run.\n" +
+        "  Update AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_SESSION_TOKEN."
+      );
+    }
+    throw new Error(`STS identity check failed (${error.name}): ${error.message}`);
+  }
+}
+
 async function callBedrock(prompt) {
   validateAwsCredentials();
 
@@ -236,6 +254,10 @@ export async function runBedrock(findingsOutput, config, paths) {
 
   console.log(`  Model:  ${MODEL_ID}`);
   console.log(`  Region: ${awsRegion}`);
+
+  // Validate env vars present, then verify identity via STS before any Bedrock calls.
+  validateAwsCredentials();
+  await verifyAwsIdentity(awsRegion);
 
   const uniqueFindings = deduplicateFindings(findings, sourceRoot);
   console.log(`  ${findings.length} findings → ${uniqueFindings.length} unique root causes`);
